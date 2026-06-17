@@ -1,0 +1,38 @@
+schemaVersion: "1"
+kind: sandbox
+name: di-kiro
+displayName: di-kiro
+description: Kiro set up for a One Login user.
+
+sandbox:
+  image: "docker/sandbox-templates:kiro-docker"
+  entrypoint:
+    run:
+      - "/bin/sh"
+      - "-c"
+      - >-
+        kiro-cli whoami 2>/dev/null ||
+        kiro-cli login --license pro
+        --identity-provider https://uk-digital-identity.awsapps.com/start/
+        --region eu-west-2
+        --use-device-flow;
+        exec kiro
+
+environment:
+  variables:
+    AWS_DOCUMENTATION_PARTITION: "aws"
+
+commands:
+  install:
+    - command: pip install uv --break-system-packages
+    - command: >-
+        echo 'kiro-cli settings telemetry.enabled false'
+        >> /etc/sandbox-persistent.sh
+
+network:
+  allowedDomains:
+    - "uk-digital-identity.awsapps.com:443"
+    - "management.us-east-1.kiro.dev:443"
+    - "runtime.us-east-1.kiro.dev:443"
+    - "**.docs.aws.amazon.com:443"
+    - "**.docs.aws.com:443"
