@@ -29,10 +29,11 @@ commands:
         echo 'kiro-cli settings telemetry.enabled false'
         >> /etc/sandbox-persistent.sh
 
-network:
-  allowedDomains:
-    - "uk-digital-identity.awsapps.com:443"
-    - "management.us-east-1.kiro.dev:443"
-    - "runtime.us-east-1.kiro.dev:443"
-    - "**.docs.aws.amazon.com:443"
-    - "**.docs.aws.com:443"
+caps:
+  network:
+    allow:
+      - "uk-digital-identity.awsapps.com:443"
+      - "management.us-east-1.kiro.dev:443"
+      - "runtime.us-east-1.kiro.dev:443"
+      - "**.docs.aws.amazon.com:443"
+      - "**.docs.aws.com:443"
