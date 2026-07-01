@@ -39,3 +39,5 @@ caps:
       - "runtime.us-east-1.kiro.dev:443"
       - "**.docs.aws.amazon.com:443"
       - "**.docs.aws.com:443"
+      - "pypi.org:443"
+      - "files.pythonhosted.org:443"
