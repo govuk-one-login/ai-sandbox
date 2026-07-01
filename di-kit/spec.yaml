@@ -32,6 +32,8 @@ commands:
 caps:
   network:
     allow:
+      - "cognito-identity.us-east-1.amazonaws.com:443"
+      - "oidc.eu-west-2.amazonaws.com:443"
       - "uk-digital-identity.awsapps.com:443"
       - "management.us-east-1.kiro.dev:443"
       - "runtime.us-east-1.kiro.dev:443"
