@@ -15,6 +15,16 @@ You can read and write files in these directories:
 
 Do NOT edit `~/.kiro/` directly — that is the runtime copy and changes there are lost when the sandbox is recreated.
 
+## Locating Source Files
+
+Your working directory may be in a different repository. The editable source files are in the `ai-sandbox` repo, not at the runtime path. To find them:
+
+```bash
+find /Users -path '*/di-kit/files/home/di-kit' 2>/dev/null
+```
+
+Edit files at the path returned (e.g. `/Users/.../ai-sandbox/<worktree>/di-kit/files/home/di-kit/shared/.kiro/`). The runtime copy at `/home/agent/di-kit/` is useful for inspecting current state but changes there are lost on sandbox recreation.
+
 ## Repository Layout (Git Worktrees)
 
 The user's repository containing di-kit may use a git worktree layout:
