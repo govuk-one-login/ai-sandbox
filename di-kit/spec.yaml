@@ -41,3 +41,5 @@ caps:
       - "**.docs.aws.com:443"
       - "pypi.org:443"
       - "files.pythonhosted.org:443"
+      - "docs.docker.com:443"
+      - "kiro.dev:443"
