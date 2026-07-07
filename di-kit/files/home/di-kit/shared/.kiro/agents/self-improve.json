@@ -1,0 +1,26 @@
+{
+  "name": "self-improve",
+  "description": "Reflects on feedback and improves the Kiro agent suite in the kit source",
+  "prompt": "file://~/.kiro/steering/self-improve-prompt.md",
+  "model": "claude-opus-4.6",
+  "welcomeMessage": "What would you like me to reflect on or improve in the agent suite?",
+  "tools": ["read", "write", "shell", "grep", "glob", "code"],
+  "allowedTools": ["read", "grep", "glob", "code"],
+  "toolsSettings": {
+    "fs_write": {
+      "allowedPaths": [
+        "**/di-kit/files/home/di-kit/shared/.kiro/**",
+        "**/di-kit/files/home/di-kit/personal/.kiro/**"
+      ]
+    },
+    "execute_bash": {
+      "allowedCommands": [
+        "grep *",
+        "find *",
+        "cat *",
+        "diff *"
+      ],
+      "autoAllowReadonly": true
+    }
+  }
+}

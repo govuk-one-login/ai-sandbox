@@ -60,4 +60,46 @@ Once inside the sandbox, switch to a custom agent with:
 /agent swap
 ```
 
-Then select `shakespeare-example` from the list.
+Then select an agent from the list.
+
+## Shared Agents
+
+### shakespeare-example
+
+A demo agent that responds to all queries in Shakespearian prose. Useful for verifying custom agents are loading correctly in the sandbox.
+
+### self-improve
+
+The self-improve agent reflects on your interactions with Kiro and codifies lessons into the agent suite configuration.
+
+#### Workflow
+
+1. Start a sandbox session with both your work project and this repo in scope:
+   ```bash
+   sbx run di-kiro /path/to/your/project /path/to/ai-sandbox --kit di-kit
+   ```
+
+2. Do your normal work with Kiro. When you find yourself correcting Kiro's behaviour — asking it to follow a convention, use a different approach, or stop doing something — make a mental note.
+
+3. When you're ready to capture those lessons, swap to the self-improve agent:
+   ```
+   /agent swap
+   ```
+   Select `self-improve`.
+
+4. Optionally, describe what you noticed if the agent doesn't pick up on it from context. For example:
+   - "Kiro kept using var instead of const — add that to steering"
+   - "I had to remind it about our commit message format three times"
+   - "It should always check for .nvmrc before running npm commands"
+
+   If you need to explain something the agent should have inferred from the session, ask it to also improve itself so it picks up on similar patterns next time.
+
+5. The agent will review the session context, propose a change to the shared or personal config, and wait for your approval before writing it.
+
+#### What it can change
+
+- **Steering files** — Add or refine coding standards and conventions
+- **Agent configs** — Adjust tool permissions, prompts, or settings
+- **Hooks** — Add lifecycle automation
+
+Changes to shared config go in `di-kit/files/home/di-kit/shared/.kiro/` and affect all users. Changes to personal config go in `di-kit/files/home/di-kit/personal/.kiro/` and are gitignored.
