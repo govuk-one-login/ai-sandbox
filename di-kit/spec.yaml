@@ -28,6 +28,13 @@ commands:
     - command: >-
         echo 'kiro-cli settings telemetry.enabled false'
         >> /etc/sandbox-persistent.sh
+  startup:
+    - command: ["/bin/sh", "-c", "cp -r /home/agent/di-kit/shared/.kiro/. /home/agent/.kiro/"]
+      user: "1000"
+      description: "Copy shared Kiro config to ~/.kiro"
+    - command: ["/bin/sh", "-c", "if [ -d /home/agent/di-kit/personal/.kiro ]; then cp -r /home/agent/di-kit/personal/.kiro/. /home/agent/.kiro/; fi"]
+      user: "1000"
+      description: "Overlay personal Kiro config on top of shared"
 
 caps:
   network:
