@@ -1,0 +1,9 @@
+{
+  "name": "code-explainer",
+  "description": "Explains code, architecture, and how things work",
+  "prompt": "file://~/.kiro/steering/code-explainer.md",
+  "model": "claude-opus-4.6",
+  "welcomeMessage": "What code would you like me to explain?",
+  "tools": ["fs_read", "fs_write", "grep", "glob", "code", "shell"],
+  "allowedTools": ["fs_read", "grep", "glob", "code", "shell"]
+}
