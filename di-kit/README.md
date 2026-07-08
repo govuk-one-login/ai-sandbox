@@ -34,10 +34,12 @@ Shared config lives in `di-kit/files/home/di-kit/shared/.kiro/` and is committed
 di-kit/files/home/di-kit/shared/.kiro/
 ├── agents/
 │   ├── code-explainer.json
+│   ├── code-planner.json
 │   ├── self-improve.json
 │   └── shakespeare-example.json
 └── steering/
     ├── code-explainer.md
+    ├── code-planner.md
     └── self-improve-prompt.md
 ```
 
@@ -56,6 +58,7 @@ Shared is applied first, then personal overlays on top. This uses Kiro's global 
 ### Included agents
 
 - **code-explainer** — Explains code and architecture using git history
+- **code-planner** — Creates structured implementation plans
 - **self-improve** — Reflects on feedback and improves the agent suite
 - **shakespeare-example** — Demo agent responding in Shakespearian prose
 
@@ -78,6 +81,10 @@ A demo agent that responds to all queries in Shakespearian prose. Useful for ver
 ### code-explainer
 
 Explains code, architecture, and how systems work. Uses git history to surface the "why" behind code decisions — tracing back to the commit that first introduced code rather than stopping at the most recent change. Includes git health metric commands for analysing repo churn, bus factor, bug hotspots, commit velocity, and firefighting patterns.
+
+### code-planner
+
+Breaks down implementation ideas into structured plans following GDS Way principles. Discovers existing patterns in the codebase before prescribing solutions. Produces plans with thin vertical slices — each task has an explicit file list, test commands, commit message, and checkpoint. Plans are saved to `docs/plans/`.
 
 ### self-improve
 
