@@ -32,8 +32,15 @@ Shared config lives in `di-kit/files/home/di-kit/shared/.kiro/` and is committed
 
 ```
 di-kit/files/home/di-kit/shared/.kiro/
-└── agents/
-    └── shakespeare-example.json    # example custom agent
+├── agents/
+│   ├── code-explainer.json
+│   ├── code-planner.json
+│   ├── self-improve.json
+│   └── shakespeare-example.json
+└── steering/
+    ├── code-explainer.md
+    ├── code-planner.md
+    └── self-improve-prompt.md
 ```
 
 ### Personal config (not committed)
@@ -48,9 +55,12 @@ Personal config lives in `di-kit/files/home/di-kit/personal/.kiro/` and override
 
 Shared is applied first, then personal overlays on top. This uses Kiro's global steering — config in `~/.kiro/` applies to all workspaces in the sandbox.
 
-### Included examples
+### Included agents
 
-- **Agent** (`shakespeare-example.json`): A demo agent that responds in Shakespearian prose
+- **code-explainer** — Explains code and architecture using git history
+- **code-planner** — Creates structured implementation plans
+- **self-improve** — Reflects on feedback and improves the agent suite
+- **shakespeare-example** — Demo agent responding in Shakespearian prose
 
 ### Switching agents in the sandbox
 
@@ -67,6 +77,14 @@ Then select an agent from the list.
 ### shakespeare-example
 
 A demo agent that responds to all queries in Shakespearian prose. Useful for verifying custom agents are loading correctly in the sandbox.
+
+### code-explainer
+
+Explains code, architecture, and how systems work. Uses git history to surface the "why" behind code decisions — tracing back to the commit that first introduced code rather than stopping at the most recent change. Includes git health metric commands for analysing repo churn, bus factor, bug hotspots, commit velocity, and firefighting patterns.
+
+### code-planner
+
+Breaks down implementation ideas into structured plans following GDS Way principles. Discovers existing patterns in the codebase before prescribing solutions. Produces plans with thin vertical slices — each task has an explicit file list, test commands, commit message, and checkpoint. Plans are saved to `docs/plans/`.
 
 ### self-improve
 
