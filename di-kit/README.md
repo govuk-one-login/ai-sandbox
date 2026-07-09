@@ -1,18 +1,46 @@
 # AWS IAM SBX Kit
 
-## Usage
+## Quick start
 
 ```bash
-# Package the kit
-sbx kit pack di-kit
+# One-time setup: allow kits from ghcr.io/govuk-one-login
+sbx settings set kit.allowedSources '["docker.io/","ghcr.io/govuk-one-login/"]'
 
+# One-time setup: authenticate to ghcr.io (uses your existing gh CLI session)
+gh auth token | sbx secret set --registry ghcr.io --password-stdin
+
+# Run the sandbox with the latest published kit
+sbx run di-kiro . --kit ghcr.io/govuk-one-login/ai-sandbox/di-kit:latest
+```
+
+To pin to a specific version:
+
+```bash
+sbx run di-kiro . --kit ghcr.io/govuk-one-login/ai-sandbox/di-kit:1.0.0
+```
+
+## Local development
+
+When iterating on the kit itself, use the local path:
+
+```bash
 # Validate the kit
 sbx kit validate di-kit
 
-# Run the kit
+# Run from local directory
 sbx run di-kiro . --kit di-kit
-
 ```
+
+## Releasing
+
+1. Update `di-kit/.kit_version` with the new version number
+2. Update `di-kit/CHANGELOG.md` with what changed
+3. Merge to main
+4. Go to **Actions → Publish di-kit → Run workflow** (on `main`)
+
+CI pushes both `ghcr.io/govuk-one-login/ai-sandbox/di-kit:<version>` and `:latest`.
+
+The workflow uses the repository's `GITHUB_TOKEN` (fine-grained, auto-generated) — no classic PATs required.
 
 ## Configuration
 
