@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- NPM to the allowlist to grant access to needed dependencies
+- Folder .idea/ to .gitignore
+
 ## [0.1.0] - 2026-07-09
 
 ### Added
@@ -17,3 +22,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AWS IAM Identity Center SSO integration
 - Network allowlist for Kiro, AWS, and PyPI endpoints
 - CI workflow to validate and publish kit to ghcr.io
+

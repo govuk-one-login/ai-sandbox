@@ -50,3 +50,4 @@ caps:
       - "files.pythonhosted.org:443"
       - "docs.docker.com:443"
       - "kiro.dev:443"
+      - "registry.npmjs.org:443"
