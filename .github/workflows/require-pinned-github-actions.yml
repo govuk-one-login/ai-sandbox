@@ -1,0 +1,20 @@
+on:
+  pull_request:
+    paths:
+      - ".github/**"
+  push:
+    paths:
+      - ".github/**"
+
+name: Require Pinned Github Actions
+
+jobs:
+  harden_security:
+    name: Harden Security
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # pin @v7
+      - name: Ensure SHA pinned actions
+        uses: zgosalvez/github-actions-ensure-sha-pinned-actions@3db98c0363e2fa5df3e1c4c471777a7c10b24cc9 # pin @v5.0.5
