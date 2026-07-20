@@ -1,19 +1,80 @@
-name: Publish di-kit
+name: Publish kits
 
 on:
   workflow_dispatch:
   pull_request:
     paths:
-      - "di-kit/**"
+      - "**/spec.yaml"
+      - "**/.kit_version"
+      - "**/files/**"
+      - "**/CHANGELOG.md"
+  push:
+    branches: [main]
+    paths:
+      - "**/spec.yaml"
+      - "**/.kit_version"
+      - "**/files/**"
+      - "**/CHANGELOG.md"
 
 permissions:
   contents: write
   packages: write
 
 jobs:
-  validate:
-    name: Validate kit
+  detect-kits:
+    name: Detect changed kits
     runs-on: ubuntu-latest
+    outputs:
+      kits: ${{ steps.find.outputs.kits }}
+      any-changed: ${{ steps.find.outputs.any-changed }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+
+      - name: Find kits with untagged versions
+        id: find
+        run: |
+          kits="[]"
+          for dir in */; do
+            [ -f "$dir.kit_version" ] || continue
+            kit="${dir%/}"
+            version=$(cat "$dir.kit_version" | tr -d '[:space:]')
+
+            if ! echo "$version" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+              echo "::warning::Invalid semver in $kit/.kit_version: '$version' — skipping"
+              continue
+            fi
+
+            tag="$kit/v$version"
+            if git fetch origin "refs/tags/$tag" >/dev/null 2>&1; then
+              echo "$kit: tag '$tag' already exists — skip"
+            else
+              echo "$kit: tag '$tag' not found — will publish"
+              kits=$(echo "$kits" | jq -c \
+                --arg k "$kit" \
+                --arg v "$version" \
+                --arg t "$tag" \
+                '. + [{"kit":$k,"version":$v,"tag":$t}]')
+            fi
+          done
+
+          echo "kits=$kits" >> "$GITHUB_OUTPUT"
+          if [ "$kits" = "[]" ]; then
+            echo "any-changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "any-changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  validate:
+    name: Validate ${{ matrix.kit }}
+    runs-on: ubuntu-latest
+    needs: detect-kits
+    if: needs.detect-kits.outputs.any-changed == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.detect-kits.outputs.kits) }}
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
@@ -24,13 +85,19 @@ jobs:
           sudo apt-get install -y docker-sbx
 
       - name: Validate kit
-        run: sbx kit validate di-kit
+        run: sbx kit validate ${{ matrix.kit }}
 
   publish:
-    name: Publish to ghcr.io
+    name: Publish ${{ matrix.kit }}
     runs-on: ubuntu-latest
-    needs: validate
-    if: github.event_name == 'workflow_dispatch'
+    needs: [detect-kits, validate]
+    if: |
+      github.event_name != 'pull_request' &&
+      needs.detect-kits.outputs.any-changed == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.detect-kits.outputs.kits) }}
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
@@ -40,32 +107,6 @@ jobs:
         run: |
           if [ "${{ github.ref }}" != "refs/heads/main" ]; then
             echo "::error::Publish must be triggered from the main branch, not '${{ github.ref_name }}'."
-            exit 1
-          fi
-
-      - name: Read version from .kit_version
-        id: version
-        run: |
-          version=$(cat di-kit/.kit_version | tr -d '[:space:]')
-          if ! echo "$version" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
-            echo "::error::Invalid semver in di-kit/.kit_version: '$version'"
-            exit 1
-          fi
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-          echo "tag=di-kit/v$version" >> "$GITHUB_OUTPUT"
-
-      - name: Guard — version tag must not already exist
-        run: |
-          if git tag -l "${{ steps.version.outputs.tag }}" | grep -q .; then
-            echo "::error::Tag '${{ steps.version.outputs.tag }}' already exists. Bump the version in di-kit/.kit_version before publishing."
-            exit 1
-          fi
-
-      - name: Guard — this commit must not already have a di-kit version tag
-        run: |
-          existing_tags=$(git tag --points-at HEAD | grep '^di-kit/v' || true)
-          if [ -n "$existing_tags" ]; then
-            echo "::error::HEAD already tagged as: $existing_tags. To re-publish, remove the existing tag first (git tag -d <tag> && git push origin :refs/tags/<tag>)."
             exit 1
           fi
 
@@ -79,12 +120,29 @@ jobs:
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
       - name: Push kit (versioned tag)
-        run: sbx kit push di-kit ghcr.io/${{ github.repository }}/di-kit:${{ steps.version.outputs.version }}
+        run: sbx kit push ${{ matrix.kit }} ghcr.io/${{ github.repository }}/${{ matrix.kit }}:${{ matrix.version }}
 
       - name: Push kit (latest tag)
-        run: sbx kit push di-kit ghcr.io/${{ github.repository }}/di-kit:latest
+        run: sbx kit push ${{ matrix.kit }} ghcr.io/${{ github.repository }}/${{ matrix.kit }}:latest
 
       - name: Tag commit with version
         run: |
-          git tag "${{ steps.version.outputs.tag }}"
-          git push origin "${{ steps.version.outputs.tag }}"
+          git tag "${{ matrix.tag }}"
+          git push origin "${{ matrix.tag }}"
+
+      - name: Extract changelog for this version
+        run: |
+          version="${{ matrix.version }}"
+          notes=$(awk "/^## \\[$version\\]/{found=1; next} /^## \\[/{if(found) exit} found{print}" ${{ matrix.kit }}/CHANGELOG.md)
+          if [ -z "$notes" ]; then
+            notes="Release ${{ matrix.kit }} v$version"
+          fi
+          echo "$notes" > /tmp/release-notes.md
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ matrix.tag }}" \
+            --title "${{ matrix.kit }} v${{ matrix.version }}" \
+            --notes-file /tmp/release-notes.md
