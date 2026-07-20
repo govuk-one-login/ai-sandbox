@@ -2,7 +2,7 @@
 
 Sandbox kits for GOV.UK One Login, published to GitHub Container Registry.
 
-Each kit is a self-contained [Docker SBX kit](https://docs.docker.com/sandbox/) that configures a sandbox environment for a specific workflow.
+Each kit is a self-contained [Docker SBX kit](https://docs.docker.com/ai/sandboxes/) that configures a sandbox environment for a specific workflow.
 
 ## Available kits
 
