@@ -6,9 +6,6 @@
 # One-time setup: allow kits from ghcr.io/govuk-one-login
 sbx settings set kit.allowedSources '["docker.io/","ghcr.io/govuk-one-login/"]'
 
-# One-time setup: authenticate to ghcr.io (uses your existing gh CLI session)
-gh auth token | sbx secret set --registry ghcr.io --password-stdin
-
 # Run the sandbox with the latest published kit
 sbx run di-kiro . --kit ghcr.io/govuk-one-login/ai-sandbox/di-kit:latest
 ```
@@ -33,14 +30,19 @@ sbx run di-kiro . --kit di-kit
 
 ## Releasing
 
-1. Update `di-kit/.kit_version` with the new version number
+1. Bump the version in `di-kit/.kit_version`
 2. Update `di-kit/CHANGELOG.md` with what changed
-3. Merge to main
-4. Go to **Actions → Publish di-kit → Run workflow** (on `main`)
+3. Merge to main — CI publishes automatically
 
-CI pushes both `ghcr.io/govuk-one-login/ai-sandbox/di-kit:<version>` and `:latest`.
+CI will:
+- Validate the kit
+- Push `ghcr.io/govuk-one-login/ai-sandbox/di-kit:<version>` and `:latest`
+- Tag the commit as `di-kit/v<version>`
+- Create a GitHub Release with auto-generated notes
 
-The workflow uses the repository's `GITHUB_TOKEN` (fine-grained, auto-generated) — no classic PATs required.
+The publish only fires when `.kit_version` contains a version that hasn't been tagged yet, so merging doc-only changes won't trigger a release.
+
+A manual **workflow_dispatch** trigger is available as a fallback if needed (Actions → Publish di-kit → Run workflow on `main`).
 
 ## Configuration
 
