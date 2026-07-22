@@ -220,6 +220,48 @@ Extract for each package:
 
 For grouped PRs, assess every package. If one requires escalation, the whole PR inherits that concern.
 
+### 1b. Read PR Conversation
+
+Fetch all comments and review threads on the PR before forming a verdict. Prior discussion may contain important context — reviewer concerns, deployment notes, related PRs, or unresolved debate that should inform the recommendation.
+
+**API command set:**
+
+```bash
+curl -fsS "https://api.github.com/repos/<OWNER>/<REPO>/issues/<NUMBER>/comments?per_page=100" \
+  -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" \
+| jq -r '.[] | select(.user.login != "dependabot[bot]") | {user: .user.login, created: .created_at, body: .body}'
+```
+
+Also fetch review comments (inline code comments):
+
+```bash
+curl -fsS "https://api.github.com/repos/<OWNER>/<REPO>/pulls/<NUMBER>/reviews?per_page=100" \
+  -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" \
+| jq -r '.[] | select(.state != "PENDING") | {user: .user.login, state: .state, body: .body}'
+```
+
+**gh command set:**
+
+```bash
+gh pr view <NUMBER> --json comments,reviews --jq '.comments[] | select(.author.login != "dependabot[bot]") | {user: .author.login, created: .createdAt, body: .body}'
+gh pr view <NUMBER> --json reviews --jq '.reviews[] | {user: .author.login, state: .state, body: .body}'
+```
+
+**What to look for:**
+- Unresolved objections or requested changes from reviewers
+- Context about why a previous version of this PR was rejected or held
+- Notes about related PRs that should merge together
+- Deployment or runtime concerns raised by team members
+- Dependabot command comments (`@dependabot rebase`, `@dependabot ignore`) that signal team intent
+- Approval reviews that indicate the team already assessed the change
+
+**How to use this context:**
+- If a reviewer raised a concern that remains unresolved, note it in the review and factor it into the verdict
+- If the team already approved but hasn't merged, flag this — it may just need someone to click merge
+- If `@dependabot ignore` was discussed but not posted, note the team's intent
+- Do not override human reviewer decisions — if a human requested changes, the verdict should reflect that regardless of your own analysis
+- Surface the conversation in a "PR Discussion" section of your review output when relevant points exist
+
 ### 2. Apply Hard Gates
 
 CI is a hard gate:
@@ -355,6 +397,9 @@ For one PR:
 
 ### Codebase Impact
 [Grouped list of touched areas, not an exhaustive file dump.]
+
+### PR Discussion
+[Only if the PR has non-bot comments or reviews. Summarise key points: reviewer concerns, approvals, context shared, unresolved debate. If no human discussion exists, omit this section.]
 
 ### Recommendation
 [Merge / Verify / Investigate / Hold] — [1-3 sentences with reason and specific check.]
