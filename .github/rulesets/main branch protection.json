@@ -1,0 +1,44 @@
+{
+  "id": 18322478,
+  "name": "main branch protection",
+  "target": "branch",
+  "source_type": "Repository",
+  "source": "govuk-one-login/ai-sandbox",
+  "enforcement": "active",
+  "conditions": {
+    "ref_name": {
+      "exclude": [],
+      "include": [
+        "~DEFAULT_BRANCH"
+      ]
+    }
+  },
+  "rules": [
+    {
+      "type": "deletion"
+    },
+    {
+      "type": "non_fast_forward"
+    },
+    {
+      "type": "pull_request",
+      "parameters": {
+        "required_approving_review_count": 1,
+        "dismiss_stale_reviews_on_push": false,
+        "required_reviewers": [],
+        "require_code_owner_review": true,
+        "dismissal_restriction": {
+          "enabled": false,
+          "allowed_actors": []
+        },
+        "require_last_push_approval": false,
+        "required_review_thread_resolution": false,
+        "allowed_merge_methods": [
+          "merge",
+          "rebase"
+        ]
+      }
+    }
+  ],
+  "bypass_actors": []
+}
