@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-07-23
+
+### Added
+
+- New dependabot folder to seporate agent needs
+- Opening up dependabot to allow for NPM install of dependencies and copying of CI pipeline error logs
+
 ## [0.1.1] - 2026-07-016
 
 ### Added

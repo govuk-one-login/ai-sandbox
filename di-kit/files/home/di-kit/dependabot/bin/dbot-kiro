@@ -1,0 +1,109 @@
+#!/bin/sh
+# dbot-kiro — Wrapper for invoking kiro-cli to fix Dependabot CI failures.
+#
+# Usage (from dependabot-dashboard):
+#   dbot-kiro /tmp/dbot-fix-<repo>-<pr>-<timestamp>
+#
+# The script:
+#   1. Installs the dependabot-fixer agent config into ~/.kiro
+#   2. cd's into the target repo directory
+#   3. Reads CI failure logs from .ci-logs/failure.log
+#   4. Invokes kiro-cli chat with the dependabot-fixer agent, passing CI logs
+#      as the initial prompt so the agent has immediate context
+#
+# CI logs convention:
+#   The dashboard writes CI failure output to:
+#     <target-repo>/.ci-logs/failure.log
+#   This file is read and included in the initial prompt automatically.
+
+set -eu
+
+CI_LOGS_FILE=".ci-logs/failure.log"
+
+# ── Install dependabot-fixer agent into ~/.kiro ──────────────────────────────
+# The agent and steering files live alongside this script at ../.kiro/.
+# Copy them into ~/.kiro/ so kiro-cli can discover the agent.
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+DBOT_KIRO_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+if [ -d "$DBOT_KIRO_DIR/.kiro" ]; then
+  mkdir -p "$HOME/.kiro"
+  cp -r "$DBOT_KIRO_DIR/.kiro/." "$HOME/.kiro/"
+  echo "Installed dependabot-fixer agent from $DBOT_KIRO_DIR/.kiro" >&2
+else
+  echo "Warning: No .kiro directory found at $DBOT_KIRO_DIR — agent may not be configured" >&2
+fi
+
+# ── Locate the target repo ───────────────────────────────────────────────────
+TARGET_DIR="${1:-}"
+
+if [ -z "$TARGET_DIR" ]; then
+  TARGET_DIR="$(ls -dt /tmp/dbot-fix-* 2>/dev/null | head -1)"
+  if [ -z "$TARGET_DIR" ]; then
+    echo "Error: No target directory specified and no dbot-fix-* directory found in /tmp" >&2
+    exit 1
+  fi
+  echo "Auto-detected target: $TARGET_DIR" >&2
+fi
+
+if [ ! -d "$TARGET_DIR" ]; then
+  echo "Error: Target directory does not exist: $TARGET_DIR" >&2
+  exit 1
+fi
+
+cd "$TARGET_DIR"
+echo "Working directory: $(pwd)" >&2
+
+# ── Configure npm auth if available ──────────────────────────────────────────
+if [ -n "${GITHUB_TOKEN:-}" ]; then
+  if [ -f package.json ] && grep -q "npm.pkg.github.com" package.json package-lock.json .npmrc 2>/dev/null; then
+    echo "Configuring npm auth for GitHub Packages..." >&2
+    npm config set "//npm.pkg.github.com/:_authToken" "$GITHUB_TOKEN" 2>/dev/null || true
+  fi
+fi
+
+# ── Build initial prompt from CI logs ────────────────────────────────────────
+build_initial_prompt() {
+  if [ -f "$CI_LOGS_FILE" ]; then
+    CI_LOG_SIZE=$(wc -c < "$CI_LOGS_FILE" | tr -d ' ')
+    echo "Found CI failure logs (${CI_LOG_SIZE} bytes): ${CI_LOGS_FILE}" >&2
+
+    if [ "$CI_LOG_SIZE" -gt 30000 ]; then
+      echo "Truncating CI logs to last 30000 characters for prompt..." >&2
+      CI_LOG_CONTENT="[... truncated — showing last 30000 characters. Full logs at ${CI_LOGS_FILE} ...]
+$(tail -c 30000 "$CI_LOGS_FILE")"
+    else
+      CI_LOG_CONTENT="$(cat "$CI_LOGS_FILE")"
+    fi
+
+    cat <<EOF
+Fix the CI failures for this Dependabot PR. The CI pipeline failure logs are below.
+
+The full logs are also available at: ${CI_LOGS_FILE}
+
+--- CI FAILURE LOGS ---
+${CI_LOG_CONTENT}
+--- END CI FAILURE LOGS ---
+
+Analyse these errors, identify what the dependency upgrade broke, and make the minimum code changes to fix it.
+EOF
+  else
+    echo "WARNING: No CI logs found at ${CI_LOGS_FILE}" >&2
+    cat <<EOF
+Fix the CI failures for this Dependabot PR. No CI logs were delivered to .ci-logs/failure.log. Run the build and test commands to reproduce the failure.
+EOF
+  fi
+
+  # Append extra instructions if provided by the dashboard
+  if [ -f ".ci-logs/extra-instructions.txt" ]; then
+    echo "" 
+    echo "ADDITIONAL INSTRUCTIONS FROM THE USER:"
+    cat ".ci-logs/extra-instructions.txt"
+  fi
+}
+
+INITIAL_PROMPT="$(build_initial_prompt)"
+
+echo "Invoking: kiro-cli chat --agent dependabot-fixer --trust-all-tools --no-interactive [with CI logs prompt]" >&2
+
+exec kiro-cli chat --agent dependabot-fixer --trust-all-tools --no-interactive "$INITIAL_PROMPT"

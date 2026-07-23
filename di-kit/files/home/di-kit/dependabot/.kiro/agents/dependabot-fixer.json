@@ -1,0 +1,26 @@
+{
+  "name": "dependabot-fixer",
+  "description": "Analyses and fixes CI failures on Dependabot dependency upgrade PRs",
+  "prompt": "file://~/.kiro/steering/dependabot-fixer.md",
+  "model": null,
+  "welcomeMessage": "I'll analyse the CI failure and fix the breaking dependency upgrade.",
+  "tools": ["fs_read", "grep", "glob", "code", "fs_write", "execute_bash"],
+  "allowedTools": ["fs_read", "grep", "glob", "code", "fs_write", "execute_bash"],
+  "toolsSettings": {
+    "execute_bash": {
+      "allowedCommands": [
+        "git *",
+        "npm *",
+        "npx *",
+        "node *",
+        "cat *",
+        "head *",
+        "tail *",
+        "find *",
+        "grep *",
+        "diff *",
+        "ls *"
+      ]
+    }
+  }
+}
