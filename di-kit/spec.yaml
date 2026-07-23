@@ -5,7 +5,7 @@ displayName: di-kiro
 description: Kiro set up for a One Login user.
 
 sandbox:
-  image: "docker/sandbox-templates:kiro-docker"
+  image: "di-kiro-android:latest"
   entrypoint:
     run:
       - "/bin/sh"
