@@ -1,0 +1,7 @@
+schemaVersion: "1"
+kind: mixin
+name: personal-kiro-config
+displayName: Personal Kiro Config
+description: >-
+  Personal Kiro configuration overlay for di-kit.
+  Add your own steering, agents, hooks, and knowledge bases.
