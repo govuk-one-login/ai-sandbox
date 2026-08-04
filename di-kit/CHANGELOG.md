@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Skills README with index, required permissions, and `sbx secret` setup guide
 - First skill: `dependabot-pr-review` (v1.0.0) — review and triage Dependabot PRs for One Login repos (Gradle, Maven, SPM, npm)
 
-## [0.1.1] - 2026-07-016
+## [0.1.1] - 2026-07-16
 
 ### Added
 
