@@ -1,18 +1,19 @@
 ---
-name: pr-review
+name: pr-review-response
 description: >
-  Review an open pull request: gather all reviewer comments, evaluate feedback
-  against the code, divide into quick wins and items needing discussion, agree
-  an approach with the author, implement fixes as TOFIXUP commits, leave
-  respectful disagreement comments where needed, and suggest resolving satisfied
-  threads. Use when asked to work through PR comments, address reviewer feedback,
-  or help clear outstanding review threads on a pull request.
+  Respond to reviewer comments on a pull request as the PR author: gather all
+  open review threads, evaluate feedback against the code, divide into quick
+  wins and items needing discussion, agree an approach with the author,
+  implement fixes as TOFIXUP commits, leave respectful disagreement comments
+  where needed, and suggest resolving satisfied threads. Use when asked to work
+  through PR comments, address reviewer feedback, or help clear outstanding
+  review threads on a pull request.
 metadata:
   author: "@huwd"
   version: "1.0.0"
 ---
 
-# PR Review
+# PR Review Response
 
 Work through open reviewer comments on a pull request to a clear end state:
 every thread either has a fix committed, a respectful disagreement posted, or a
