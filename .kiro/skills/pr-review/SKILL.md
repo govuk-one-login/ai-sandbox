@@ -34,7 +34,7 @@ from the PR author (the user).
 Follow the access strategy in [references/github-access.md](references/github-access.md). In summary:
 
 1. Determine `OWNER/REPO` from `git remote get-url origin`
-2. Try `gh` CLI first; fall back to direct API calls
+2. Try direct API calls first; fall back to `gh` CLI
 3. If both fail, report the permission gap and stop
 
 Do not ask for tokens. Do not print, read, or persist secrets.
@@ -124,14 +124,17 @@ For each thread where the author agrees a code change is needed:
    TOFIXUP: <short description of what this addresses>
    ```
 3. Push the branch
-4. Reply to the thread with a link to the commit:
-   ```bash
-   gh pr comment <NUMBER> --repo <OWNER/REPO> \
-     --body "Good call — done in <commit-sha>. <Optional: one-sentence explanation of the approach taken.>"
-   ```
-   When replying to an inline thread, use the review comment reply endpoint:
+4. Reply to the thread with a link to the commit.
+
+   For inline (line-level) threads, use the review comment reply endpoint:
    ```bash
    gh api repos/<OWNER/REPO>/pulls/comments/<THREAD-COMMENT-ID>/replies \
+     -X POST -f body="Good call — done in <commit-sha>."
+   ```
+
+   For issue-level (top-of-PR) comments only:
+   ```bash
+   gh api repos/<OWNER/REPO>/issues/<NUMBER>/comments \
      -X POST -f body="Good call — done in <commit-sha>."
    ```
 
@@ -192,17 +195,17 @@ The following threads look ready to resolve:
 Want me to resolve these?
 ```
 
-Resolve only after explicit author confirmation:
-```bash
-gh api repos/<OWNER/REPO>/pulls/<NUMBER>/comments/<THREAD-ID> \
-  -X PATCH -f body=... # (resolution is via the UI; suggest to the user rather than
-                        # auto-resolving — GitHub's API doesn't expose a resolve endpoint
-                        # for review threads directly)
-```
+Resolve only after explicit author confirmation.
 
-Note: GitHub does not expose a direct API endpoint to resolve review threads.
-Suggest the threads to the author and let them click Resolve in the UI, or use
-the GraphQL mutation `resolveReviewThread` if available.
+GitHub does not expose a REST endpoint to resolve review threads. Either:
+- Ask the author to click **Resolve conversation** in the UI, or
+- Use the GraphQL mutation if available:
+  ```graphql
+  mutation { resolveReviewThread(input: { threadId: "<THREAD_NODE_ID>" }) { thread { isResolved } } }
+  ```
+  ```bash
+  gh api graphql -f query='mutation { resolveReviewThread(input: { threadId: "<THREAD_NODE_ID>" }) { thread { isResolved } } }'
+  ```
 
 ## Output format for the discussion step
 
