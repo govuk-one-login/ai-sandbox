@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Skills conventions documentation (`docs/skills.md`)
 - Skills README with index, required permissions, and `sbx secret` setup guide
 - First skill: `dependabot-pr-review` (v1.0.0) — review and triage Dependabot PRs for One Login repos (Gradle, Maven, SPM, npm)
+- Skill: `git-workflow` (v1.0.0) — draft, review, and explain git commits and branch names to Conventional Commits and GDS standards (#30)
+- Skill: `github-pull-requests` (v1.0.0) — draft and review GitHub PR descriptions, with correct issue linking and partial-fix guidance (#30)
 
 ## [0.1.1] - 2026-07-016
 
