@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Skills conventions documentation (`docs/skills.md`)
 - Skills README with index, required permissions, and `sbx secret` setup guide
 - First skill: `dependabot-pr-review` (v1.0.0) — review and triage Dependabot PRs for One Login repos (Gradle, Maven, SPM, npm)
+- Second skill: `pr-review-response` (v1.0.0) — respond to reviewer comments on a PR as the author; classifies threads, implements fixes as TOFIXUP commits, and suggests resolving satisfied threads
 
 ## [0.1.1] - 2026-07-016
 
