@@ -8,6 +8,7 @@ See [docs/skills.md](../../docs/skills.md) for conventions on writing new skills
 | Skill | Description | Version |
 |-------|-------------|---------|
 | [dependabot-pr-review](./dependabot-pr-review/) | Review and triage Dependabot PRs — single or batch | 1.0.0 |
+| [incremental-commits](./incremental-commits/) | Make small, atomic git commits as you work, validated and user-approved | 0.1.0 |
 
 ## Required permissions
 
