@@ -1,7 +1,7 @@
 # This is the global .kiroignore file
 # This prevents Kiro from reading specific files in your workspace using .gitignore syntax
 # At the moment this is only enforced via the Kiro IDE, not the CLI
-# .kiroignore is enforced at the workspace level is using Kiro CLI V3
+# .kiroignore is enforced at the workspace level if using Kiro CLI V3
 
 # AWS profiles and credentials
 **/.aws/
