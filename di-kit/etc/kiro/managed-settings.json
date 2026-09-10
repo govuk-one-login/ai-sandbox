@@ -1,0 +1,17 @@
+{
+  "rules": [
+    {
+      "capability": "shell",
+      "match": [
+        "aws configure *",
+        "env*",
+        "printenv*",
+        "curl *",
+        "wget *",
+        "terraform apply*",
+        "terraform destroy*"
+      ],
+      "effect": "deny"
+    }
+  ]
+}
