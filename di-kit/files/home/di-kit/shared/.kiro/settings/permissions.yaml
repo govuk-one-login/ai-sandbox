@@ -1,6 +1,6 @@
 # This file declares exactly which capabilities are allowed and for which operations
 # Everything else asks or denies by default
-# Rules here add to the Kiro defaults - they does not replace them
+# Rules here add to the Kiro defaults - they do not replace them
 
 rules:
   - capability: shell
@@ -23,6 +23,6 @@ rules:
   - capability: shell
     effect: deny
     match: [
-      "terraform apply",
+      "terraform apply*",
       "terraform destroy*"
     ] 
