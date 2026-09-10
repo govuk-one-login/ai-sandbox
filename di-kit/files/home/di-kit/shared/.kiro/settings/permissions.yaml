@@ -1,0 +1,28 @@
+# This file declares exactly which capabilities are allowed and for which operations
+# Everything else asks or denies by default
+# Rules here add to the Kiro defaults - they does not replace them
+
+rules:
+  - capability: shell
+    effect: allow
+    match: [
+      "checkov*",
+      "pre-commit run*",
+      "pytest*",
+      "tflint*",
+      "uv pip install -r*",
+      "uv venv*"
+    ]
+
+  - capability: shell
+    effect: ask
+    match: [
+      "uv run"
+    ]
+
+  - capability: shell
+    effect: deny
+    match: [
+      "terraform apply",
+      "terraform destroy*"
+    ] 
