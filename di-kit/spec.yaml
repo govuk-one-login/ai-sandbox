@@ -61,3 +61,4 @@ caps:
       # Java dependencies
       - "repo.maven.apache.org:443"
       - "repo.danubetech.com:443"
+      - "registry.terraform.io/providers/hashicorp/aws/latest/docs:443" 
