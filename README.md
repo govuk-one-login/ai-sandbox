@@ -69,5 +69,5 @@ CI will automatically:
 sbx kit validate di-kit
 
 # Run from local directory (no publish needed)
-sbx run di-kiro . --kit di-kit
+sbx run ./di-kit
 ```
