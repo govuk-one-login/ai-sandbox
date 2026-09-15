@@ -52,6 +52,142 @@ A manual **workflow_dispatch** trigger is available as a fallback if needed (Act
   - `management.us-east-1.kiro.dev:443`
   - `runtime.us-east-1.kiro.dev:443`
 
+## Network egress monitoring
+
+The kit records the outbound network traffic that Kiro and its tools make
+from inside the sandbox. This gives visibility into where the agent is
+connecting, without relying on the paid AI Governance add-on.
+
+Monitoring (the in-guest proxy) is **enabled by default**. Disable it for a
+run by setting `DISABLE_MONITOR_EGRESS`:
+
+```bash
+sbx run di-kiro . --kit di-kit -e DISABLE_MONITOR_EGRESS=1 --name di-kiro
+```
+
+The flag is baked into the sandbox at creation and reapplied on re-attach
+(accepted "off" values: unset/empty, `0`, `false`, `no`). The host-side
+`tools/watch-egress.py` is unaffected — it reads sbx's own policy log, so it
+works regardless of this setting.
+
+### How it works
+
+- A small, dependency-free logging forward proxy is delivered to the sandbox
+  at `~/di-kit/monitoring/egress-proxy.py` (source:
+  `di-kit/files/home/di-kit/monitoring/egress-proxy.py`).
+- The sandbox entrypoint starts the proxy, waits for it to become ready, and
+  then points the standard `HTTP_PROXY` / `HTTPS_PROXY` variables at it so all
+  well-behaved clients route through it.
+- The proxy **chains to the proxy sbx already configures** (its host-side
+  forward proxy) via `EGRESS_UPSTREAM_PROXY`, so traffic is observed without
+  bypassing the sandbox's own egress controls.
+- HTTPS is logged at the `CONNECT` level only — target host, port and bytes
+  transferred, with outcome `opened`. Payloads are **not** decrypted (no TLS
+  interception, no CA injection). Plain HTTP requests additionally log the
+  method, URL and response status.
+
+> **Which component tells me if a request was blocked?** sbx intercepts TLS
+> and enforces a deny *inside* the encrypted session, so the in-guest proxy
+> can only see that an HTTPS tunnel *opened* — it cannot tell allowed from
+> blocked. For the authoritative verdict use `tools/watch-egress.py` (below);
+> the in-guest proxy is for per-connection **detail** (hosts, byte volumes,
+> timing, plain-HTTP URLs).
+
+### Blocked vs allowed (authoritative)
+
+`tools/watch-egress.py` runs on the **host** and streams a live allowed/blocked
+feed from `sbx policy log --json`. This is the reliable verdict source and
+needs no paid licence.
+
+```bash
+tools/watch-egress.py di-kiro          # live feed for one sandbox
+tools/watch-egress.py                  # all sandboxes (tags each with [vm])
+tools/watch-egress.py di-kiro --once   # one-shot snapshot
+tools/watch-egress.py di-kiro -i 1     # 1s poll interval
+```
+
+Example output:
+
+```
+· 2026-09-08 15:18:54  ALLOW  pypi.org:443                    forward-bypass  x1
+· 2026-09-09 11:05:30  BLOCK  www.google.com:443              No matching allow rule (default deny)  x4
+```
+
+The underlying command is `sbx policy log di-kiro` (add `--json` for the raw
+structured form the watcher parses).
+
+### Per-connection detail (in-guest proxy)
+
+- Structured events: `~/di-kit/monitoring/logs/egress.jsonl` (one JSON object
+  per line).
+- Proxy stdout/stderr: `~/di-kit/monitoring/logs/proxy.out`.
+
+Each event looks like:
+
+```json
+{"ts":"2026-09-03T10:15:23Z","session_id":"…","event":"connect",
+ "outcome":"opened","host":"kiro.dev","port":443,"via":"parent",
+ "status":200,"bytes_out":517,"bytes_in":8213,"duration_ms":142}
+```
+
+Key fields:
+
+- `event` — `connect` (HTTPS/TLS tunnel), `http` (plain HTTP), or a
+  `proxy_start` / `proxy_stop` lifecycle event.
+- `outcome` — for `connect`: `opened` (tunnel established; verdict per sbx) or
+  `error` (upstream unreachable). For `http`: `allowed`, `blocked` (upstream
+  returned `403`/`407`), or `error`. **Note:** HTTPS is never `blocked` here —
+  ask `watch-egress.py` for that.
+- `status` / `reason` — status code and reason phrase from the upstream proxy.
+- `via` — `parent` when chained through sbx's proxy, else `direct`.
+- `bytes_out` / `bytes_in` / `duration_ms` — volume and timing.
+
+Tail the raw stream inside the sandbox (replace `di-kiro` with your sandbox
+name):
+
+```bash
+sbx exec -it di-kiro sh -c 'tail -f -n +1 ~/di-kit/monitoring/logs/egress.jsonl'
+```
+
+For a compact, human-readable feed:
+
+```bash
+sbx exec -it di-kiro python3 -u -c '
+import json, subprocess
+p = subprocess.Popen(
+    ["tail","-f","-n","+1","/home/agent/di-kit/monitoring/logs/egress.jsonl"],
+    stdout=subprocess.PIPE, text=True)
+for line in p.stdout:
+    try: e = json.loads(line)
+    except Exception: continue
+    if e.get("event") in ("connect","http"):
+        print(f"{e[\"ts\"][11:19]}  {e.get(\"outcome\",\"?\"):7} "
+              f"{e.get(\"method\",\"CONNECT\"):7} "
+              f"{e[\"host\"]}:{e[\"port\"]:<5} {e.get(\"status\",\"\")} "
+              f"{e.get(\"reason\",\"\")}")'
+```
+
+### Configuration
+
+The proxy reads these environment variables (all optional):
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `EGRESS_PROXY_PORT` | `8080` | Listen port inside the sandbox |
+| `EGRESS_LOG_FILE` | `~/di-kit/monitoring/logs/egress.jsonl` | JSONL output path |
+| `EGRESS_UPSTREAM_PROXY` | (sbx's proxy) | Parent proxy to chain through |
+
+### Limitations and extending
+
+- Only captures clients that honour `HTTP_PROXY` / `HTTPS_PROXY`. sbx still
+  enforces its own egress policy for everything else.
+- The in-guest proxy cannot determine allowed/blocked for HTTPS (sbx enforces
+  inside intercepted TLS). Use `tools/watch-egress.py` for the verdict.
+- Metadata only — no request/response bodies are recorded.
+- The proxy is a self-contained script with a single `log_event()` sink, so it
+  is straightforward to extend later (for example, forwarding events to an
+  OpenTelemetry collector) without changing how traffic is routed.
+
 ## Kiro Config
 
 The kit supports shared organisation config and personal overrides, both delivered to `~/.kiro/` (global Kiro config) in the sandbox.
