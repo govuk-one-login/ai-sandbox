@@ -10,12 +10,42 @@ sandbox:
     run:
       - "/bin/sh"
       - "-c"
-      - >-
+      - |
+        # --- egress monitoring (enabled by default) ----------------------
+        # Start the in-guest logging proxy and route tools through it so
+        # outbound connections are recorded. Disable per-run by setting
+        # DISABLE_MONITOR_EGRESS, e.g.
+        #   sbx run di-kiro . --kit di-kit -e DISABLE_MONITOR_EGRESS=1
+        # See di-kit/README.md.
+        case "${DISABLE_MONITOR_EGRESS:-}" in
+          ""|0|false|FALSE|no|NO) MONITOR_EGRESS=1 ;;
+          *) MONITOR_EGRESS=0 ;;
+        esac
+        if [ "$MONITOR_EGRESS" = 1 ]; then
+          EGRESS_DIR=/home/agent/di-kit/monitoring
+          mkdir -p "$EGRESS_DIR/logs"
+          export EGRESS_LOG_FILE="$EGRESS_DIR/logs/egress.jsonl"
+          # Chain through whatever proxy sbx already configured (its host-side
+          # forward proxy), so we add visibility without bypassing it.
+          export EGRESS_UPSTREAM_PROXY="${HTTPS_PROXY:-${HTTP_PROXY:-}}"
+          nohup python3 "$EGRESS_DIR/egress-proxy.py" </dev/null \
+            >>"$EGRESS_DIR/logs/proxy.out" 2>&1 &
+          # Wait for the proxy to accept connections before routing through it.
+          python3 "$EGRESS_DIR/egress-proxy.py" --wait || true
+          # Point tools at the local logging proxy (preserve existing NO_PROXY).
+          export HTTP_PROXY="http://127.0.0.1:8080"  HTTPS_PROXY="http://127.0.0.1:8080"
+          export http_proxy="http://127.0.0.1:8080"  https_proxy="http://127.0.0.1:8080"
+          export NO_PROXY="127.0.0.1,localhost${NO_PROXY:+,$NO_PROXY}"
+          export no_proxy="$NO_PROXY"
+        else
+          echo "di-kit: egress monitoring disabled (DISABLE_MONITOR_EGRESS set)" >&2
+        fi
+        # --- agent entrypoint --------------------------------------------
         kiro-cli whoami 2>/dev/null ||
-        kiro-cli login --license pro
-        --identity-provider https://uk-digital-identity.awsapps.com/start/
-        --region eu-west-2
-        --use-device-flow;
+        kiro-cli login --license pro \
+          --identity-provider https://uk-digital-identity.awsapps.com/start/ \
+          --region eu-west-2 \
+          --use-device-flow
         exec kiro
 
 environment:
