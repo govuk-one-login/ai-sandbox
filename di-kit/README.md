@@ -66,7 +66,8 @@ di-kit/files/home/di-kit/shared/.kiro/
 │   ├── code-explainer.json
 │   ├── code-planner.json
 │   ├── self-improve.json
-│   └── shakespeare-example.json
+│   ├── shakespeare-example.json
+│   └── typescript-development.json
 └── steering/
     ├── code-explainer.md
     ├── code-planner.md
@@ -91,6 +92,7 @@ Shared is applied first, then personal overlays on top. This uses Kiro's global 
 - **code-planner** — Creates structured implementation plans
 - **self-improve** — Reflects on feedback and improves the agent suite
 - **shakespeare-example** — Demo agent responding in Shakespearian prose
+- **typescript-development** — Writes and edits TypeScript to a strict, safety-first style (auto-loads the typescript-development skill; auto-approves reads/writes on `.ts` files)
 
 ### Switching agents in the sandbox
 
