@@ -6,12 +6,18 @@
         "aws configure *",
         "env*",
         "printenv*",
-        "curl *",
-        "wget *",
         "terraform apply*",
         "terraform destroy*"
       ],
       "effect": "deny"
+    },
+    {
+      "capability": "shell",
+      "match": [
+        "curl",
+        "wget"
+      ],
+      "effect": "ask"
     }
   ]
 }
