@@ -1,6 +1,9 @@
 ---
 name: typescript-development
 description: Enforce a strict, safety-first TypeScript style when writing or editing code in a Node.js TypeScript project. Apply these directives to every change to TypeScript code.
+metadata:
+  author: "@ede-gds"
+  version: "1.0.0"
 ---
 
 # TypeScript Development
