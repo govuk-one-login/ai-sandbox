@@ -18,6 +18,9 @@ This skill applies when:
 
 It does NOT activate by default on every coding task. The user opts in.
 
+For the rationale behind this content and the source blog posts, see `references/sources.md`.
+Load this file only if you need extra detail or context to make a decision.
+
 ## Detect project tooling
 
 Before making any commit, discover the project's validation commands. Check for:
@@ -103,6 +106,11 @@ git diff --cached
 
 Write a message following these rules.
 
+**Local rules:**
+
+Assess the conventions and rules of the repository you're committing to by reading the documentation and recent commit messages.
+Obey all local repo rules, even where they contradict the rules below.
+
 **Subject line:**
 
 - Maximum 50 characters
@@ -115,13 +123,10 @@ Write a message following these rules.
 - Separated from subject by a blank line
 - Wrapped at around 72 characters
 - Explains the **why**, not just the what — the diff already shows what changed
-- Captures context a future reader would otherwise lose (like an ADR)
+- Captures context a future reader would otherwise lose (like an Architecture Decision Record (ADR))
 
 A link to a ticket is **not** a substitute for a message. The message must stand on its own —
 links can break, and the reasoning must survive.
-
-For the rationale behind these rules, worked examples, and the source blog posts, see
-`references/sources.md` (load on demand — don't read it unless you need the background).
 
 Example:
 
