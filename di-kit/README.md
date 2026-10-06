@@ -73,9 +73,17 @@ di-kit/files/home/di-kit/shared/.kiro/
     └── self-improve-prompt.md
 ```
 
-### Personal config (not committed)
+### Personal config (via mixin kit)
 
-Personal config lives in `di-kit/files/home/di-kit/personal/.kiro/` and overrides shared config. This directory is gitignored — create it manually and add your own config.
+To bring your own steering, agents, hooks, or settings into the sandbox, create a personal mixin kit and load it alongside di-kit. The mixin delivers your files into `/home/agent/di-kit/personal/.kiro/`, and the startup script overlays them on top of shared config.
+
+See the [top-level README](../README.md#personalising-your-sandbox) for instructions and the [personal kit template](../examples/personal-kit-template/) to get started.
+
+```bash
+sbx run di-kiro . \
+  --kit ghcr.io/govuk-one-login/ai-sandbox/di-kit:latest \
+  --kit ~/kiro-personal-kit
+```
 
 ### How it works
 
