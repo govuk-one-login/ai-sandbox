@@ -8,6 +8,7 @@ See [docs/skills.md](../../docs/skills.md) for conventions on writing new skills
 | Skill | Description | Version |
 |-------|-------------|---------|
 | [dependabot-pr-review](./dependabot-pr-review/) | Review and triage Dependabot PRs — single or batch | 1.0.0 |
+| [pr-review-response](./pr-review-response/) | Respond to reviewer comments on a PR as the author — classify, fix, and clear threads | 1.0.0 |
 
 ## Required permissions
 
@@ -32,6 +33,21 @@ It can optionally post review comments and merge PRs when explicitly approved by
 
 **Read-only mode:** if you only want the skill to analyse and report (never post or merge), you can omit the `write` permissions entirely.
 The skill will still produce full reviews — it just won't be able to act on them.
+
+### pr-review-response
+
+This skill reads PR metadata, diffs, and review threads via the GitHub API.
+It can optionally post replies to review threads when explicitly approved by the user.
+
+| Permission | Scope | Why |
+|------------|-------|-----|
+| `pull_requests: read` | Repository | Read PR metadata, diff, inline threads, and reviews |
+| `issues: read` | Repository | Read issue-level (top-of-PR) comments |
+| `pull_requests: write` | Repository | Reply to review threads (optional — only used with user approval) |
+| `issues: write` | Repository | Post issue-level comments (optional — only used with user approval) |
+| `contents: write` | Repository | Commit and push fixes to the PR branch (optional — only used with user approval) |
+
+**Read-only mode:** omit the `write` permissions to restrict the skill to analysis and classification only.
 
 ## Setting up secrets with sbx
 
