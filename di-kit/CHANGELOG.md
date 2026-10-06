@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-  - Changed region from us-east-1 to eu-central-1
+  - Updated kit network allow list to use Kiro eu-central-1 regions rather than us-east-1 because the Kiro instance was migrated
 
 ## [0.1.1] - 2026-07-016
 
