@@ -51,3 +51,4 @@ caps:
       - "docs.docker.com:443"
       - "kiro.dev:443"
       - "registry.npmjs.org:443"
+      - "registry.terraform.io/providers/hashicorp/aws/latest/docs:443" 
