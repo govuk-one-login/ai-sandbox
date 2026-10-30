@@ -1,0 +1,67 @@
+schemaVersion: "2"
+kind: sandbox
+name: di-claude
+displayName: di-claude
+description: Claude Code on AWS Bedrock for One Login users.
+
+sandbox:
+  image: "docker/sandbox-templates:claude-code-docker"
+  entrypoint:
+    - "/bin/sh"
+    - "-c"
+    - >-
+      aws sts get-caller-identity --profile di >/dev/null 2>&1 ||
+      aws sso login --profile di --no-browser --use-device-code;
+      exec claude --dangerously-skip-permissions
+      --settings /home/agent/claude-kit/shared/claude-settings.json
+
+environment:
+  variables:
+    CLAUDE_CODE_USE_BEDROCK: "1"
+    AWS_REGION: "eu-west-2"
+    AWS_PROFILE: "di"
+    DISABLE_TELEMETRY: "1"
+    CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1"
+
+permissions:
+  network:
+    allow:
+      # Bedrock (Claude models)
+      - "bedrock-runtime.eu-west-2.amazonaws.com:443"
+      # AWS CLI v2 installer
+      - "awscli.amazonaws.com:443"
+      # AWS SSO device-flow login
+      # NOTE: device/portal.sso hosts must match sso_region in
+      # files/home/claude-kit/shared/.aws/config — check blocked domains
+      # with `sbx policy log` after first login and adjust if needed.
+      - "uk-digital-identity.awsapps.com:443"
+      - "device.sso.eu-west-2.amazonaws.com:443"
+      - "portal.sso.eu-west-2.amazonaws.com:443"
+      - "signin.aws.amazon.com:443"
+      # AWS documentation
+      - "**.docs.aws.amazon.com:443"
+      - "**.docs.aws.com:443"
+      # Package installs / tooling
+      - "pypi.org:443"
+      - "files.pythonhosted.org:443"
+      - "registry.npmjs.org:443"
+      - "docs.docker.com:443"
+
+setup:
+  install:
+    - command: >-
+        curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o /tmp/awscliv2.zip
+        && unzip -q /tmp/awscliv2.zip -d /tmp
+        && /tmp/aws/install --bin-dir /usr/local/bin
+        && rm -rf /tmp/aws /tmp/awscliv2.zip
+      description: "Install AWS CLI v2 (required for SSO device-flow login)"
+  startup:
+    - command: ["/bin/sh", "-c", "cp -r /home/agent/claude-kit/shared/.claude/. /home/agent/.claude/ 2>/dev/null || true; mkdir -p /home/agent/.aws && cp -r /home/agent/claude-kit/shared/.aws/. /home/agent/.aws/ 2>/dev/null || true"]
+      user: "1000"
+      description: "Copy shared Claude Code and AWS config"
+    - command: ["/bin/sh", "-c", "if [ -d /home/agent/claude-kit/personal/.claude ]; then cp -r /home/agent/claude-kit/personal/.claude/. /home/agent/.claude/; fi"]
+      user: "1000"
+      description: "Overlay personal Claude Code config on top of shared"
+    - command: ["/bin/sh", "-c", "if [ -d /home/agent/claude-kit/personal/.aws ]; then mkdir -p /home/agent/.aws && cp -r /home/agent/claude-kit/personal/.aws/. /home/agent/.aws/; fi"]
+      user: "1000"
+      description: "Overlay personal AWS config on top of shared"
