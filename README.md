@@ -9,6 +9,7 @@ Each kit is a self-contained [Docker SBX kit](https://docs.docker.com/ai/sandbox
 | Kit | Description | Latest |
 |-----|-------------|--------|
 | [di-kit](./di-kit/) | Kiro sandbox for One Login developers | `ghcr.io/govuk-one-login/ai-sandbox/di-kit:latest` |
+| [claude-kit](./claude-kit/) | Claude Code on AWS Bedrock sandbox for One Login developers | `ghcr.io/govuk-one-login/ai-sandbox/claude-kit:latest` |
 
 ## Using a kit
 
