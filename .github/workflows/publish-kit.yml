@@ -85,7 +85,7 @@ jobs:
           sudo apt-get install -y docker-sbx
 
       - name: Validate kit
-        run: sbx kit validate ${{ matrix.kit }}
+        run: sbx kit validate --offline ${{ matrix.kit }}
 
   publish:
     name: Publish ${{ matrix.kit }}
