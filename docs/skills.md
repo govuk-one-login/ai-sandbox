@@ -3,24 +3,37 @@
 Skills are structured markdown files that give AI agents domain-specific knowledge and repeatable workflows for bounded tasks.
 Unlike steering (which sets tone and constraints) or agents (which define tools and personality), a skill is a portable, self-contained "how to do X" that any compatible agent can pick up.
 
-Skills in this repo use the `SKILL.md` format supported by Kiro and ship with the kit.
-They get copied into `~/.kiro/skills/` by the sandbox startup command.
+Skills in this repo use the `SKILL.md` format supported by Kiro and Claude Code.
+
+The canonical home for shared skills is the
+[govuk-one-login/agent-skills](https://github.com/govuk-one-login/agent-skills)
+repository. Kits do **not** commit skill copies — they declare which skills they
+need and install them at sandbox startup with
+[Agent Manager](https://github.com/ai-agent-manager/agent-manager), which pulls each
+skill from the source repositories declared in the agent-skills discovery document.
+This keeps a single copy of each skill, shared across every kit and agent.
 
 ## Where skills live
 
 ```
-kiro-kit/files/home/kiro-kit/
-├── shared/.kiro/skills/       ← Ships with the kit (everyone gets these)
-│   └── {skill name}/
-│       └── SKILL.md
-└── personal/.kiro/skills/     ← User overrides (gitignored, not shared)
+govuk-one-login/agent-skills/           ← Canonical home (marketplace layout)
+    └── skills/
+        └── {skill name}/
+            └── SKILL.md
+
+claude-kit/files/home/claude-kit/shared/ai-skills.yml
+                                          ← Skills the kit installs, by name
+<your repo>/.kiro/skills/                ← Host-side install (gitignored)
 ```
 
-Shared skills are team defaults.
-Personal skills let individuals override or extend without affecting the kit for others.
+Shared skills are team defaults, referenced by name from each kit.
+Personal skills still override them: kits layer a gitignored `personal/`
+directory on top of shared config at startup, so individuals can add or replace
+skills without affecting the kit for others.
 
-> **Future consideration:** if we have multiple kits, skills may need to live at a level above and be symlinked or referenced into each kit.
-> For now, one kit — keep it simple.
+> **Note:** `kiro-kit` still ships a bundled copy of `dependabot-pr-review` from
+> before this model; it is being migrated to the same install-at-startup approach.
+> `claude-kit` uses the new approach from the start.
 
 ## Anatomy of a skill
 

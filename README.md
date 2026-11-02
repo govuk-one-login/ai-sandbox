@@ -9,6 +9,7 @@ Each kit is a self-contained [Docker SBX kit](https://docs.docker.com/ai/sandbox
 | Kit | Description | Latest |
 |-----|-------------|--------|
 | [kiro-kit](./kiro-kit/) | Kiro sandbox for One Login developers | `ghcr.io/govuk-one-login/ai-sandbox/kiro-kit:latest` |
+| [claude-kit](./claude-kit/) | Claude Code on AWS Bedrock sandbox for One Login developers | `ghcr.io/govuk-one-login/ai-sandbox/claude-kit:latest` |
 
 ## Using a kit
 
@@ -25,6 +26,24 @@ Pin to a specific version for reproducibility:
 ```bash
 sbx run di-kiro . --kit ghcr.io/govuk-one-login/ai-sandbox/kiro-kit:0.1.1
 ```
+
+## Shared agent skills
+
+Skills (such as `dependabot-pr-review`) don't live in this repo. Their canonical home
+is [govuk-one-login/agent-skills](https://github.com/govuk-one-login/agent-skills);
+kits install the skills they need at sandbox startup with
+[Agent Manager](https://github.com/ai-agent-manager/agent-manager), pulling each skill
+from the source repositories declared in the agent-skills discovery document.
+
+To install shared skills into a coding assistant on the host (e.g. Kiro or Claude Code
+running on your Mac against this repo):
+
+```bash
+npx -y @ai-agent-manager/cli@latest govuk-one-login/agent-skills
+```
+
+The interactive menu lists all available skills and asks where to install them.
+Skills installed into a repo (`.kiro/skills/`, `.claude/skills/`) are gitignored here.
 
 ## Repository structure
 
