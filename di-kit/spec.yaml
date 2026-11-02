@@ -51,3 +51,13 @@ caps:
       - "docs.docker.com:443"
       - "kiro.dev:443"
       - "registry.npmjs.org:443"
+      # Gradle and Gradle plugins
+      - "gradle.org:443"
+      - "services.gradle.org:443"
+      - "github.com:443"
+      - "release-assets.githubusercontent.com:443"
+      - "plugins.gradle.org:443"
+      - "plugins-artifacts.gradle.org:443"
+      # Java dependencies
+      - "repo.maven.apache.org:443"
+      - "repo.danubetech.com:443"
