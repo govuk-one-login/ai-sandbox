@@ -9,8 +9,8 @@
   "toolsSettings": {
     "fs_write": {
       "allowedPaths": [
-        "**/di-kit/files/home/di-kit/shared/.kiro/**",
-        "**/di-kit/files/home/di-kit/personal/.kiro/**"
+        "**/kiro-kit/files/home/kiro-kit/shared/.kiro/**",
+        "**/kiro-kit/files/home/kiro-kit/personal/.kiro/**"
       ]
     },
     "execute_bash": {

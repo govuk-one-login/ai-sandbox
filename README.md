@@ -8,7 +8,7 @@ Each kit is a self-contained [Docker SBX kit](https://docs.docker.com/ai/sandbox
 
 | Kit | Description | Latest |
 |-----|-------------|--------|
-| [di-kit](./di-kit/) | Kiro sandbox for One Login developers | `ghcr.io/govuk-one-login/ai-sandbox/di-kit:latest` |
+| [kiro-kit](./kiro-kit/) | Kiro sandbox for One Login developers | `ghcr.io/govuk-one-login/ai-sandbox/kiro-kit:latest` |
 
 ## Using a kit
 
@@ -16,21 +16,21 @@ Each kit is a self-contained [Docker SBX kit](https://docs.docker.com/ai/sandbox
 # One-time setup: allow kits from this registry
 sbx settings set kit.allowedSources '["docker.io/","ghcr.io/govuk-one-login/"]'
 
-# Run a kit (example: di-kit)
-sbx run di-kiro . --kit ghcr.io/govuk-one-login/ai-sandbox/di-kit:latest
+# Run a kit (example: kiro-kit)
+sbx run di-kiro . --kit ghcr.io/govuk-one-login/ai-sandbox/kiro-kit:latest
 ```
 
 Pin to a specific version for reproducibility:
 
 ```bash
-sbx run di-kiro . --kit ghcr.io/govuk-one-login/ai-sandbox/di-kit:0.1.1
+sbx run di-kiro . --kit ghcr.io/govuk-one-login/ai-sandbox/kiro-kit:0.1.1
 ```
 
 ## Repository structure
 
 ```
 .
-├── di-kit/                  # Each kit lives in its own directory
+├── kiro-kit/                  # Each kit lives in its own directory
 │   ├── spec.yaml            # Kit specification
 │   ├── .kit_version         # Semver — bump to trigger a release
 │   ├── CHANGELOG.md         # Human-readable changelog (Keep a Changelog format)
@@ -66,8 +66,8 @@ CI will automatically:
 
 ```bash
 # Validate a kit
-sbx kit validate di-kit
+sbx kit validate kiro-kit
 
 # Run from local directory (no publish needed)
-sbx run ./di-kit
+sbx run di-kiro . --kit kiro-kit
 ```
