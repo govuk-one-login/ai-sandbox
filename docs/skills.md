@@ -9,7 +9,7 @@ They get copied into `~/.kiro/skills/` by the sandbox startup command.
 ## Where skills live
 
 ```
-di-kit/files/home/di-kit/
+kiro-kit/files/home/kiro-kit/
 ├── shared/.kiro/skills/       ← Ships with the kit (everyone gets these)
 │   └── dependabot-pr-review/
 │       └── SKILL.md
