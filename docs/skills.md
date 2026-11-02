@@ -11,7 +11,7 @@ They get copied into `~/.kiro/skills/` by the sandbox startup command.
 ```
 kiro-kit/files/home/kiro-kit/
 ├── shared/.kiro/skills/       ← Ships with the kit (everyone gets these)
-│   └── dependabot-pr-review/
+│   └── {skill name}/
 │       └── SKILL.md
 └── personal/.kiro/skills/     ← User overrides (gitignored, not shared)
 ```
