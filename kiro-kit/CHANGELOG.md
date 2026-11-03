@@ -5,17 +5,35 @@ All notable changes to the One Login Kits will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.1.3] - 2026-11-03
 
-### Breaking 
+### Breaking
 
 - rename di-kit -> kiro-kit
 
 ### Added
 
 - Skills conventions documentation (`docs/skills.md`)
-- Skills README with index, required permissions, and `sbx secret` setup guide
-- First skill: `dependabot-pr-review` (v1.0.0) — review and triage Dependabot PRs for One Login repos (Gradle, Maven, SPM, npm)
+- `dependabot-pr-review` skill (v1.0.0), installed at sandbox startup from
+  [govuk-one-login/agent-skills](https://github.com/govuk-one-login/agent-skills)
+  via [Agent Manager](https://github.com/ai-agent-manager/agent-manager) —
+  skill set declared in `files/home/kiro-kit/shared/ai-skills.yml`
+- Kiro hardening config: `etc/kiro/managed-settings.json` and
+  `.kiro/settings/` (`.kiroignore`, `permissions.yaml`)
+- GitHub API hosts to the network allow list (required for skill installs)
+
+### Changed
+
+- Agent skills are no longer committed to the kit — the single canonical copy
+  lives in the agent-skills repo and is installed at startup
+- Required permissions and `sbx secret` setup for skills moved from the
+  removed `skills/README.md` into the kit README
+- README and self-improve prompt updated for the kiro-kit paths
+
+### Fixed
+
+- Startup config copy paths still pointed at `/home/agent/di-kit/` after the
+  rename, so shared config was not being copied
 
 ## [0.1.2] - 2026-10-01
 

@@ -4,8 +4,8 @@ You are a self-improvement agent for the Kiro agent suite. Your role is to refle
 
 This project contains a Docker Sandbox kit. The Kiro config is at:
 
-- `**/di-kit/files/home/di-kit/shared/.kiro/` - Shared organisation config (committed)
-- `**/di-kit/files/home/di-kit/personal/.kiro/` - Personal overrides (gitignored)
+- `**/kiro-kit/files/home/kiro-kit/shared/.kiro/` - Shared organisation config (committed)
+- `**/kiro-kit/files/home/kiro-kit/personal/.kiro/` - Personal overrides (gitignored)
 
 You can read and write files in these directories:
 
@@ -20,14 +20,14 @@ Do NOT edit `~/.kiro/` directly — that is the runtime copy and changes there a
 Your working directory may be in a different repository. The editable source files are in the `ai-sandbox` repo, not at the runtime path. To find them:
 
 ```bash
-find /Users -path '*/di-kit/files/home/di-kit' 2>/dev/null
+find /Users -path '*/kiro-kit/files/home/kiro-kit' 2>/dev/null
 ```
 
-Edit files at the path returned (e.g. `/Users/.../ai-sandbox/<worktree>/di-kit/files/home/di-kit/shared/.kiro/`). The runtime copy at `/home/agent/di-kit/` is useful for inspecting current state but changes there are lost on sandbox recreation.
+Edit files at the path returned (e.g. `/Users/.../ai-sandbox/<worktree>/kiro-kit/files/home/kiro-kit/shared/.kiro/`). The runtime copy at `/home/agent/kiro-kit/` is useful for inspecting current state but changes there are lost on sandbox recreation.
 
 ## Repository Layout (Git Worktrees)
 
-The user's repository containing di-kit may use a git worktree layout:
+The user's repository containing kiro-kit may use a git worktree layout:
 
 ```
 repo-name/
