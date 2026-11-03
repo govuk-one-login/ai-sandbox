@@ -29,10 +29,16 @@ commands:
         echo 'kiro-cli settings telemetry.enabled false'
         >> /etc/sandbox-persistent.sh
   startup:
-    - command: ["/bin/sh", "-c", "cp -r /home/agent/di-kit/shared/.kiro/. /home/agent/.kiro/"]
+    - command: ["/bin/sh", "-c", "cp -r /home/agent/kiro-kit/shared/.kiro/. /home/agent/.kiro/"]
       user: "1000"
       description: "Copy shared Kiro config to ~/.kiro"
-    - command: ["/bin/sh", "-c", "if [ -d /home/agent/di-kit/personal/.kiro ]; then cp -r /home/agent/di-kit/personal/.kiro/. /home/agent/.kiro/; fi"]
+    # The kiro image sets NPM_CONFIG_PREFIX to a dir whose lib/ is missing;
+    # create it so npx can unpack the Agent Manager CLI (the agent owns the
+    # dir, so no root needed).
+    - command: ["/bin/sh", "-c", "mkdir -p \"${NPM_CONFIG_PREFIX:-/usr/local/share/npm-global}/lib\" \"${NPM_CONFIG_PREFIX:-/usr/local/share/npm-global}/bin\"; npx -y @ai-agent-manager/cli@latest govuk-one-login/agent-skills --config /home/agent/kiro-kit/shared/ai-skills.yml"]
+      user: "1000"
+      description: "Install shared agent skills from govuk-one-login/agent-skills"
+    - command: ["/bin/sh", "-c", "if [ -d /home/agent/kiro-kit/personal/.kiro ]; then cp -r /home/agent/kiro-kit/personal/.kiro/. /home/agent/.kiro/; fi"]
       user: "1000"
       description: "Overlay personal Kiro config on top of shared"
 
@@ -51,6 +57,12 @@ caps:
       - "docs.docker.com:443"
       - "kiro.dev:443"
       - "registry.npmjs.org:443"
+      # Agent skills: Agent Manager downloads the discovery document
+      # (archive + Contents API) and clones skill source repositories.
+      # See files/home/kiro-kit/shared/ai-skills.yml.
+      - "api.github.com:443"
+      - "codeload.github.com:443"
+      - "raw.githubusercontent.com:443"
       # Gradle and Gradle plugins
       - "gradle.org:443"
       - "services.gradle.org:443"
