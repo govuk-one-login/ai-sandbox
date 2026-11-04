@@ -10,4 +10,5 @@
 tools: claude-code
 scope: system
 skills:
-  - dependabot-pr-review
+  - incremental-commits
+  - typescript-development
