@@ -31,7 +31,7 @@ Personal skills still override them: kits layer a gitignored `personal/`
 directory on top of shared config at startup, so individuals can add or replace
 skills without affecting the kit for others.
 
-> `claude-kit` uses the new approach from the start.
+Both `kiro-kit` and `claude-kit` use this approach.
 
 ## Anatomy of a skill
 

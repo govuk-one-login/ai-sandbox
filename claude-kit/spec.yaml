@@ -38,6 +38,9 @@ permissions:
       - "device.sso.eu-west-2.amazonaws.com:443"
       - "portal.sso.eu-west-2.amazonaws.com:443"
       - "signin.aws.amazon.com:443"
+      # STS (entrypoint credential check: aws sts get-caller-identity)
+      - "sts.eu-west-2.amazonaws.com:443"
+      - "sts.amazonaws.com:443"
       # AWS documentation
       - "**.docs.aws.amazon.com:443"
       - "**.docs.aws.com:443"
@@ -63,7 +66,7 @@ setup:
         && rm -rf /tmp/aws /tmp/awscliv2.zip
       description: "Install AWS CLI v2 (required for SSO device-flow login)"
   startup:
-    - command: ["/bin/sh", "-c", "cp -r /home/agent/claude-kit/shared/.claude/. /home/agent/.claude/ 2>/dev/null || true; mkdir -p /home/agent/.aws && cp -r /home/agent/claude-kit/shared/.aws/. /home/agent/.aws/ 2>/dev/null || true"]
+    - command: ["/bin/sh", "-c", "mkdir -p /home/agent/.claude /home/agent/.aws && cp -r /home/agent/claude-kit/shared/.claude/. /home/agent/.claude/ && cp -r /home/agent/claude-kit/shared/.aws/. /home/agent/.aws/"]
       user: "1000"
       description: "Copy shared Claude Code and AWS config"
     - command: ["/bin/sh", "-c", "npx -y @ai-agent-manager/cli@latest govuk-one-login/agent-skills --config /home/agent/claude-kit/shared/ai-skills.yml"]
