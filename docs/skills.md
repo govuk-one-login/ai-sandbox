@@ -31,8 +31,6 @@ Personal skills still override them: kits layer a gitignored `personal/`
 directory on top of shared config at startup, so individuals can add or replace
 skills without affecting the kit for others.
 
-> **Note:** `kiro-kit` still ships a bundled copy of `dependabot-pr-review` from
-> before this model; it is being migrated to the same install-at-startup approach.
 > `claude-kit` uses the new approach from the start.
 
 ## Anatomy of a skill
