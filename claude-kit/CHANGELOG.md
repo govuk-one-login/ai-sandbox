@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [govuk-one-login/agent-skills](https://github.com/govuk-one-login/agent-skills)
   via [Agent Manager](https://github.com/ai-agent-manager/agent-manager)
   (skill set configured in `files/home/claude-kit/shared/ai-skills.yml`,
-  initially `dependabot-pr-review`)
+  initially `incremental-commits` & `typescript-development`)
 - Personal config overlay support (gitignored) for `~/.claude` and `~/.aws`
 - Network allow list for Bedrock, AWS SSO, AWS docs, package registries,
   and GitHub (skill installs)

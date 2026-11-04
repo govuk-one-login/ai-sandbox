@@ -29,7 +29,7 @@ sbx run di-kiro . --kit ghcr.io/govuk-one-login/ai-sandbox/kiro-kit:0.1.1
 
 ## Shared agent skills
 
-Skills (such as `dependabot-pr-review`) don't live in this repo. Their canonical home
+Skills (such as `incremental-commits`) don't live in this repo. Their canonical home
 is [govuk-one-login/agent-skills](https://github.com/govuk-one-login/agent-skills);
 kits install the skills they need at sandbox startup with
 [Agent Manager](https://github.com/ai-agent-manager/agent-manager), pulling each skill
