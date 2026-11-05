@@ -173,6 +173,13 @@ When the sandbox starts, the sbx proxy intercepts requests to `api.github.com` a
 The skill's API-first approach (`curl` to `api.github.com`) works without any `Authorization` header in the commands — the proxy handles it transparently.
 If no GitHub secret is configured, the skill falls back to the `gh` CLI command set, which uses whatever authentication `gh auth` has configured inside the sandbox.
 
+## Skills without special permissions
+
+The following are added and can work just on a codebase mounted into sbx
+
+- incremental-commits
+- typescript-development
+
 ## Shared Agents
 
 ### shakespeare-example
