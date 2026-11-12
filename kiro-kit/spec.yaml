@@ -47,6 +47,7 @@ caps:
     allow:
       - "cognito-identity.eu-central-1.amazonaws.com:443"
       - "oidc.eu-west-2.amazonaws.com:443"
+      - "eu-west-2.signin.aws:443"
       - "uk-digital-identity.awsapps.com:443"
       - "management.eu-central-1.kiro.dev:443"
       - "runtime.eu-central-1.kiro.dev:443"
