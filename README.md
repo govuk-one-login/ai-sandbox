@@ -16,15 +16,18 @@ Each kit is a self-contained [Docker SBX kit](https://docs.docker.com/ai/sandbox
 # One-time setup: allow kits from this registry
 sbx settings set kit.allowedSources '["docker.io/","ghcr.io/govuk-one-login/"]'
 
-# Run a kit (example: kiro-kit)
-sbx run di-kiro . --kit ghcr.io/govuk-one-login/ai-sandbox/kiro-kit:latest
+# Create a sandbox from the kit with access to <dir_1> and <dir_2>
+# Note that this creates a sandbox from the current latest version, to update you need to delete the sandbox and recrate it
+sbx create ghcr.io/govuk-one-login/ai-sandbox/kiro-kit:latest <dir_1> <dir_2> --name di-kiro
+
+# Run an existing sandbox
+sbx run --name di-kiro
+
+# View and manage all sandboxes
+sbx
 ```
 
-Pin to a specific version for reproducibility:
-
-```bash
-sbx run di-kiro . --kit ghcr.io/govuk-one-login/ai-sandbox/kiro-kit:0.1.1
-```
+[Sbx reference](https://docs.docker.com/reference/cli/sbx/)
 
 ## Repository structure
 
