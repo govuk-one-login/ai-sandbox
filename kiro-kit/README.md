@@ -13,7 +13,7 @@ sbx run ghcr.io/govuk-one-login/ai-sandbox/kiro-kit:latest .
 To pin to a specific version:
 
 ```bash
-sbx run ghcr.io/govuk-one-login/ai-sandbox/kiro-kit:0.1.3 .
+sbx run ghcr.io/govuk-one-login/ai-sandbox/kiro-kit:1.0.0 .
 ```
 
 ## Local development
