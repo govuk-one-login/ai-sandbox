@@ -24,11 +24,37 @@ environment:
 
 commands:
   install:
-    - command: pip install uv --break-system-packages
+    # The GDS corporate proxy (Zscaler) intercepts outbound TLS and re-signs
+    # connections with its own CA. Without this step, pip, npm, curl, and any
+    # other HTTPS client inside the sandbox will fail certificate verification.
+    #
+    # We fetch the CA dynamically rather than committing it to the repo because
+    # Zscaler rotates the intermediate CA roughly every two weeks. The approach:
+    #   1. openssl s_client fetches the full certificate chain from a known host
+    #   2. awk extracts the second cert in the chain (the intermediate CA, not
+    #      the leaf cert for pythonhosted.org itself)
+    #   3. We grep the subject for "zscaler" to confirm the proxy is active and
+    #      the issuer hasn't unexpectedly changed — if it's not Zscaler we abort
+    #      rather than trust an unknown CA
+    #   4. update-ca-certificates registers it in the system trust store
+    #
+    # This runs before pip install uv (which is in startup) so the CA is trusted
+    # for all subsequent installs.
+    - command: >-
+        cert=$(echo | openssl s_client -connect files.pythonhosted.org:443 -showcerts 2>/dev/null
+        | awk 'BEGIN{n=0} /BEGIN CERTIFICATE/{n++} n==2,/END CERTIFICATE/');
+        echo "$cert" | grep -qi "zscaler" || { echo "error: cert is not Zscaler"; exit 1; };
+        echo "$cert" > /usr/local/share/ca-certificates/zscaler-ca.crt
+        && update-ca-certificates
+      user: "0"
+      description: "Fetch and trust the Zscaler corporate proxy CA"
     - command: >-
         echo 'kiro-cli settings telemetry.enabled false'
         >> /etc/sandbox-persistent.sh
   startup:
+    - command: ["/bin/sh", "-c", "pip install uv --break-system-packages"]
+      user: "0"
+      description: "Install uv"
     - command: ["/bin/sh", "-c", "cp -r /home/agent/kiro-kit/shared/.kiro/. /home/agent/.kiro/"]
       user: "1000"
       description: "Copy shared Kiro config to ~/.kiro"

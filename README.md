@@ -71,3 +71,11 @@ sbx kit validate kiro-kit
 # Run from local directory (no publish needed)
 sbx run di-kiro . --kit kiro-kit
 ```
+
+## Corporate proxy (Zscaler)
+
+The kits fetch the Zscaler intermediate CA at sandbox creation time from the
+corporate proxy itself, so no cert is committed to the repo. The first install
+command extracts the CA from `files.pythonhosted.org`, confirms the issuer is
+Zscaler, and registers it in the sandbox trust store before any other installs
+run.
