@@ -1,0 +1,8 @@
+{
+  "name": "code-explainer",
+  "description": "Explains code, architecture, and how things work",
+  "prompt": "file://~/.junie/steering/code-explainer.md",
+  "welcomeMessage": "What code would you like me to explain?",
+  "tools": ["fs_read", "fs_write", "grep", "glob", "code", "shell"],
+  "allowedTools": ["fs_read", "grep", "glob", "code", "shell"]
+}

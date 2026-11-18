@@ -1,0 +1,25 @@
+{
+  "name": "self-improve",
+  "description": "Reflects on feedback and improves the junie agent suite in the kit source",
+  "prompt": "file://~/.junie/steering/self-improve-prompt.md",
+  "welcomeMessage": "What would you like me to reflect on or improve in the agent suite?",
+  "tools": ["read", "write", "shell", "grep", "glob", "code"],
+  "allowedTools": ["read", "grep", "glob", "code"],
+  "toolsSettings": {
+    "fs_write": {
+      "allowedPaths": [
+        "**/junie-kit/files/home/junie-kit/shared/.junie/**",
+        "**/junie-kit/files/home/junie-kit/personal/.junie/**"
+      ]
+    },
+    "execute_bash": {
+      "allowedCommands": [
+        "grep *",
+        "find *",
+        "cat *",
+        "diff *"
+      ],
+      "autoAllowReadonly": true
+    }
+  }
+}

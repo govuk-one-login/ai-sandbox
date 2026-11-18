@@ -1,0 +1,10 @@
+{
+  "sessionCount": "30",
+  "onboardingDefaultModelChosen": "true",
+  "steeringHintSeen": "true",
+  "ecoModePerModel": "{}",
+  "subagentsMode": "SameModelOnly",
+  "shareAnonymousStatistics": "false",
+  "ollamaBaseUrl": "http://host.docker.internal:9931",
+  "diffViewMode": "Unified"
+}
