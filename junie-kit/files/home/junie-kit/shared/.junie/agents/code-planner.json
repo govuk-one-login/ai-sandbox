@@ -1,0 +1,23 @@
+{
+  "name": "code-planner",
+  "description": "Breaks down ideas into structured implementation plans",
+  "prompt": "file://~/.junie/steering/code-planner.md",
+  "welcomeMessage": "What would you like to plan? I'll help break it down.",
+  "tools": ["fs_read", "grep", "glob", "code", "fs_write", "execute_bash"],
+  "allowedTools": ["fs_read", "grep", "glob", "code"],
+  "toolsSettings": {
+    "fs_write": {
+      "allowedPaths": ["./docs/plans/**"]
+    },
+    "execute_bash": {
+      "allowedCommands": [
+        "mkdir -p docs/plans",
+        "git log *",
+        "git worktree *",
+        "git rev-parse *",
+        "head *",
+        "tail *"
+      ]
+    }
+  }
+}

@@ -1,0 +1,64 @@
+schemaVersion: "1"
+kind: sandbox
+name: di-junie
+displayName: di-junie
+description: JetBrains Junie set up for a One Login user.
+
+sandbox:
+  image: "docker.io/sbx/junie-image:latest"
+  entrypoint:
+    run:
+      - "/bin/sh"
+      - "-c"
+      - "junie"
+
+environment:
+  variables:
+    AWS_DOCUMENTATION_PARTITION: "aws"
+
+commands:
+  startup:
+    - command: ["/bin/sh", "-c", "cp -r /home/agent/junie-kit/shared/.junie/. /home/agent/.junie/"]
+      user: "1000"
+      description: "Copy shared junie config to ~/.junie"
+    - command: ["/bin/sh", "-c", "mkdir -p \"${NPM_CONFIG_PREFIX:-/usr/local/share/npm-global}/lib\" \"${NPM_CONFIG_PREFIX:-/usr/local/share/npm-global}/bin\"; npx -y @ai-agent-manager/cli@latest govuk-one-login/agent-skills --config /home/agent/junie-kit/shared/ai-skills.yml"]
+      user: "1000"
+      description: "Install shared agent skills from govuk-one-login/agent-skills"
+    - command: ["/bin/sh", "-c", "if [ -d /home/agent/junie-kit/personal/.junie ]; then cp -r /home/agent/junie-kit/personal/.junie/. /home/agent/.junie/; fi"]
+      user: "1000"
+      description: "Overlay personal junie config on top of shared"
+
+caps:
+  network:
+    allow:
+      - "cognito-identity.eu-central-1.amazonaws.com:443"
+      - "oidc.eu-west-2.amazonaws.com:443"
+      - "uk-digital-identity.awsapps.com:443"
+      - "management.eu-central-1.junie.dev:443"
+      - "runtime.eu-central-1.junie.dev:443"
+      - "**.docs.aws.amazon.com:443"
+      - "**.docs.aws.com:443"
+      - "pypi.org:443"
+      - "files.pythonhosted.org:443"
+      - "docs.docker.com:443"
+      - "junie.dev:443"
+      - "registry.npmjs.org:443"
+      # Agent skills: Agent Manager downloads the discovery document
+      # (archive + Contents API) and clones skill source repositories.
+      # See files/home/junie-kit/shared/ai-skills.yml.
+      - "api.github.com:443"
+      - "codeload.github.com:443"
+      - "raw.githubusercontent.com:443"
+      # Gradle and Gradle plugins
+      - "gradle.org:443"
+      - "services.gradle.org:443"
+      - "github.com:443"
+      - "release-assets.githubusercontent.com:443"
+      - "plugins.gradle.org:443"
+      - "plugins-artifacts.gradle.org:443"
+      # Java dependencies
+      - "repo.maven.apache.org:443"
+      - "repo.danubetech.com:443"
+      - "registry.terraform.io/providers/hashicorp/aws/latest/docs:443"
+      # Local models
+      - "localhost:9931"
