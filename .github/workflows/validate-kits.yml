@@ -60,3 +60,29 @@ jobs:
 
       - name: Validate kit
         run: sbx kit validate --offline ${{ matrix.kit }}
+
+  changelog:
+    name: Changelog ${{ matrix.kit }}
+    runs-on: ubuntu-latest
+    needs: detect-kits
+    if: needs.detect-kits.outputs.any-changed == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        kit: ${{ fromJSON(needs.detect-kits.outputs.kits) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # pin @v7
+
+      - name: Check CHANGELOG.md has an entry for the current version
+        env:
+          KIT: ${{ matrix.kit }}
+        run: |
+          if [ ! -f "$KIT/CHANGELOG.md" ]; then
+            echo "::error::$KIT/CHANGELOG.md is missing"
+            exit 1
+          fi
+          version=$(tr -d '[:space:]' < "$KIT/.kit_version")
+          if ! grep -qF "## [$version]" "$KIT/CHANGELOG.md"; then
+            echo "::error::$KIT/CHANGELOG.md has no '## [$version]' entry matching .kit_version"
+            exit 1
+          fi
