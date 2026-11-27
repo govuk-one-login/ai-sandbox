@@ -1,0 +1,21 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "endpoint/claude-sonnet-5-5",
+  "share": "disabled",
+  "autoupdate": false,
+  "provider": {
+    "endpoint": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "OpenAI-compatible endpoint",
+      "options": {
+        "baseURL": "{env:OPENCODE_MODEL_URL}",
+        "apiKey": "{env:OPENCODE_MODEL_API_KEY}"
+      },
+      "models": {
+        "claude-sonnet-5-5": {
+          "name": "Claude Sonnet 5.5"
+        }
+      }
+    }
+  }
+}

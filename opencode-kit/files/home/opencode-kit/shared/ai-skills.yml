@@ -1,0 +1,16 @@
+# Shared agent skills for the di-opencode sandbox.
+#
+# Installed at sandbox startup by Agent Manager (see spec.yaml) from the
+# govuk-one-login/agent-skills discovery document. Skills are pulled from
+# their source repositories — they are NOT committed to this kit.
+#
+# Add or remove skills here; the full list of available skills is in
+# https://github.com/govuk-one-login/agent-skills.
+
+# Agent Manager has no `opencode` target; `agents` installs into
+# ~/.agents/skills, which opencode discovers automatically.
+tools: agents
+scope: system
+skills:
+  - incremental-commits
+  - typescript-development
