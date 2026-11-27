@@ -1,0 +1,33 @@
+{
+  "id": "chatcmpl-imposter00000000000000000002",
+  "object": "chat.completion",
+  "created": 1700000000,
+  "model": "${stores.request.model:-gpt-4o}",
+  "system_fingerprint": "fp_imposter",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": null,
+        "tool_calls": [
+          {
+            "id": "call_imposter0000000000000001",
+            "type": "function",
+            "function": {
+              "name": "get_weather",
+              "arguments": "{\"location\": \"London, UK\", \"unit\": \"celsius\"}"
+            }
+          }
+        ]
+      },
+      "logprobs": null,
+      "finish_reason": "tool_calls"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 62,
+    "completion_tokens": 18,
+    "total_tokens": 80
+  }
+}

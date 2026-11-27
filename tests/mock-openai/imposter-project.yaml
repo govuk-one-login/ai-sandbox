@@ -1,0 +1,8 @@
+# Imposter project configuration for the vendored OpenAI mock.
+# https://docs.imposter.sh/project_config/
+#
+# Added by this repo (not part of the upstream example). It pins how the
+# Imposter CLI runs the mock, so everyone, and CI, run the same build:
+# the standalone native engine, at a fixed version, with no Docker needed.
+engine: native
+version: "5.21.3"

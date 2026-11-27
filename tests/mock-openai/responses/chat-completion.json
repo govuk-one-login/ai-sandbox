@@ -1,0 +1,23 @@
+{
+  "id": "chatcmpl-imposter00000000000000000001",
+  "object": "chat.completion",
+  "created": 1700000000,
+  "model": "${stores.request.model:-gpt-4o}",
+  "system_fingerprint": "fp_imposter",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "Hello from Imposter! This is a mock OpenAI-compatible chat completion. Point your AI harness at http://localhost:8080/v1 and this response stands in for the real API."
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 19,
+    "completion_tokens": 34,
+    "total_tokens": 53
+  }
+}

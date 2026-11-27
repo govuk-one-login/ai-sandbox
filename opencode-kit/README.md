@@ -130,6 +130,12 @@ Edit the `skills:` list to change them.
 ## Local development
 
 ```bash
+# End-to-end test: a real sandbox from this kit, answered by a mock OpenAI
+# endpoint on port 9931. Needs sbx signed in and the Imposter CLI installed
+# (`imposter`); stop llama.cpp (or anything else on 9931) first.
+# See tests/e2e/opencode-kit.sh.
+tests/e2e/opencode-kit.sh
+
 # Validate (CI runs the same check; the argument is required)
 sbx kit validate --offline opencode-kit --kit-arg model_endpoint=llm.example.com:443
 
@@ -145,3 +151,26 @@ sbx run di-opencode . --kit opencode-kit --kit-arg model_endpoint=llm.example.co
 
 CI validates the kit using the dummy argument in
 `.github/kit-args/opencode-kit.args`. Update it if you add required arguments.
+
+## End-to-end test
+
+`tests/e2e/opencode-kit.sh` builds a real sandbox from this kit and checks it
+against a mock OpenAI endpoint on port 9931 (the Imposter OpenAI example,
+vendored in `tests/mock-openai`). It checks startup and skills, model
+discovery, prompts answered through the kit's own entrypoint, and the network
+allow list.
+
+It needs `sbx` signed in, `jq` and the Imposter CLI (`brew install
+imposter-project/imposter/imposter`), and fails if any is missing. Port 9931
+must be free, so stop llama.cpp first.
+
+```bash
+tests/e2e/opencode-kit.sh
+```
+
+It runs locally only for now. A CI workflow,
+`.github/workflows/e2e-opencode-kit.yml`, is in place, but its automatic
+triggers are disabled until it has a Docker sign-in secret and has been proven
+on a runner. The mock ignores `Authorization` and only the local plain-HTTP
+path is covered, so it does not test a remote HTTPS endpoint or token
+injection.
