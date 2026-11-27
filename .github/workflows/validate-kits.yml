@@ -59,7 +59,13 @@ jobs:
           sudo apt-get install -y docker-sbx
 
       - name: Validate kit
-        run: sbx kit validate --offline ${{ matrix.kit }}
+        run: |
+          args_file=".github/kit-args/${{ matrix.kit }}.args"
+          if [ -f "$args_file" ]; then
+            sbx kit validate --offline ${{ matrix.kit }} --kit-args-file "$args_file"
+          else
+            sbx kit validate --offline ${{ matrix.kit }}
+          fi
 
   changelog:
     name: Changelog ${{ matrix.kit }}
