@@ -1,0 +1,112 @@
+plugin: rest
+
+# An OpenAI-compatible mock: the endpoints an "OpenAI compatible" AI harness
+# expects, served from externalised response files. Point your client's base URL
+# at http://localhost:8080/v1 and drop in any API key.
+#
+# Chat completions route to a different response file depending on the request
+# body, so one endpoint covers plain chat, streaming and tool calling:
+#   * stream: true          -> Server-Sent Events (text/event-stream)
+#   * ...mentions "weather" -> an assistant tool call (finish_reason: tool_calls)
+#   * otherwise             -> a plain assistant message
+#
+# The requested model is echoed back into each response via a captured store.
+
+resources:
+  # --- List models -------------------------------------------------------
+  - method: GET
+    path: /v1/models
+    response:
+      file: responses/models.json
+
+  - method: GET
+    path: /v1/models/{model}
+    response:
+      file: responses/model.json
+      template: true
+
+  # --- Chat completions --------------------------------------------------
+
+  # The three chat resources below share one path, so their body conditions
+  # are kept mutually exclusive — exactly one matches any request. Otherwise
+  # Imposter reports "more than one resource matched" and picks one at random.
+  # Note: `value: "true"` is quoted so it stays the *string* true, not a YAML
+  # boolean, which the body matcher would never equal.
+
+  # Streaming: the client asked for stream: true. Reply with Server-Sent
+  # Events, one chat.completion.chunk per `data:` line, ending with [DONE].
+  # Streaming wins over tool calling when both would apply.
+  - method: POST
+    path: /v1/chat/completions
+    requestBody:
+      jsonPath: $.stream
+      operator: EqualTo
+      value: "true"
+    capture:
+      model:
+        jsonPath: $.model
+        store: request
+    response:
+      file: responses/chat-completion-stream.txt
+      template: true
+      headers:
+        Content-Type: text/event-stream
+
+  # Tool calling: the latest message mentions the weather (and the client is
+  # not streaming), so the assistant calls the get_weather function.
+  - method: POST
+    path: /v1/chat/completions
+    requestBody:
+      allOf:
+        - operator: Contains
+          value: weather
+        - jsonPath: $.stream
+          operator: NotEqualTo
+          value: "true"
+    capture:
+      model:
+        jsonPath: $.model
+        store: request
+    response:
+      file: responses/chat-completion-tool-call.json
+      template: true
+
+  # Plain chat completion: anything that is neither streamed nor about weather.
+  - method: POST
+    path: /v1/chat/completions
+    requestBody:
+      allOf:
+        - operator: NotContains
+          value: weather
+        - jsonPath: $.stream
+          operator: NotEqualTo
+          value: "true"
+    capture:
+      model:
+        jsonPath: $.model
+        store: request
+    response:
+      file: responses/chat-completion.json
+      template: true
+
+  # --- Legacy text completions -------------------------------------------
+  - method: POST
+    path: /v1/completions
+    capture:
+      model:
+        jsonPath: $.model
+        store: request
+    response:
+      file: responses/completion.json
+      template: true
+
+  # --- Embeddings --------------------------------------------------------
+  - method: POST
+    path: /v1/embeddings
+    capture:
+      model:
+        jsonPath: $.model
+        store: request
+    response:
+      file: responses/embeddings.json
+      template: true

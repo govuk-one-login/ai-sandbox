@@ -1,0 +1,19 @@
+{
+  "id": "cmpl-imposter00000000000000000001",
+  "object": "text_completion",
+  "created": 1700000000,
+  "model": "${stores.request.model:-gpt-3.5-turbo-instruct}",
+  "choices": [
+    {
+      "text": "\n\nThis is a mock text completion served by Imposter.",
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 5,
+    "completion_tokens": 12,
+    "total_tokens": 17
+  }
+}

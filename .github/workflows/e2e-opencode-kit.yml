@@ -1,0 +1,99 @@
+name: E2E opencode-kit
+
+# Runs tests/e2e/opencode-kit.sh: a real sandbox built from opencode-kit,
+# answered by the vendored Imposter OpenAI mock (tests/mock-openai) on port
+# 9931, which the official Imposter actions start and stop.
+#
+# Automatic triggers are disabled until this job has been proven on a runner.
+# It needs:
+#   - DOCKER_SBX_USERNAME and DOCKER_SBX_PAT repository secrets (a Docker
+#     account and a Personal Access Token with at least Read scope), because
+#     sbx must be signed in to create sandboxes. Secrets aren't passed to pull
+#     requests from forks, so those runs would fail the first step;
+#   - KVM on the runner for the sandbox microVM (enabled below);
+#   - sbx's host.docker.internal mapping to work on Linux as it does on macOS,
+#     where the test has been verified.
+#
+# workflow_dispatch stays enabled only because GitHub rejects a workflow with
+# no triggers; a manual run without the secrets fails at the first step.
+# To enable, uncomment the pull_request and push triggers below.
+on:
+  workflow_dispatch:
+  # pull_request:
+  #   paths:
+  #     - "opencode-kit/**"
+  #     - "tests/**"
+  #     - ".github/workflows/e2e-opencode-kit.yml"
+  # push:
+  #   branches: [main]
+  #   paths:
+  #     - "opencode-kit/**"
+  #     - "tests/**"
+  #     - ".github/workflows/e2e-opencode-kit.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    name: opencode-kit end-to-end
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Require Docker sign-in secrets
+        env:
+          DOCKER_SBX_USERNAME: ${{ secrets.DOCKER_SBX_USERNAME }}
+          DOCKER_SBX_PAT: ${{ secrets.DOCKER_SBX_PAT }}
+        run: |
+          if [ -z "$DOCKER_SBX_USERNAME" ] || [ -z "$DOCKER_SBX_PAT" ]; then
+            echo "::error::Set the DOCKER_SBX_USERNAME and DOCKER_SBX_PAT secrets to run this workflow."
+            exit 1
+          fi
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Enable KVM for the sandbox microVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' \
+            | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Install sbx CLI
+        run: |
+          curl -fsSL https://get.docker.com | sudo REPO_ONLY=1 sh
+          sudo apt-get update
+          sudo apt-get install -y docker-sbx
+
+      - name: Sign in to Docker Sandboxes
+        env:
+          DOCKER_SBX_USERNAME: ${{ secrets.DOCKER_SBX_USERNAME }}
+          DOCKER_SBX_PAT: ${{ secrets.DOCKER_SBX_PAT }}
+        run: |
+          echo "$DOCKER_SBX_PAT" \
+            | sbx login --username "$DOCKER_SBX_USERNAME" --password-stdin
+
+      # Official Imposter actions. setup installs the latest Imposter CLI (it
+      # has no version input). The engine version below must match
+      # tests/mock-openai/imposter-project.yaml.
+      - name: Set up Imposter
+        uses: imposter-project/imposter-github-action/setup@291d093fac3532f4fc463a33e3acdfddad8435fc # v1.1.0
+
+      - name: Start mock OpenAI endpoint
+        uses: imposter-project/imposter-github-action/start-mocks@291d093fac3532f4fc463a33e3acdfddad8435fc # v1.1.0
+        with:
+          config-dir: ./tests/mock-openai
+          port: "9931"
+          engine-type: native
+          version: "5.21.3"
+
+      - name: Run end-to-end test
+        env:
+          # The mock above is already running; the script must not start or
+          # stop its own.
+          E2E_MOCK_RUNNING: "1"
+        run: tests/e2e/opencode-kit.sh
+
+      - name: Stop mock OpenAI endpoint
+        if: always()
+        uses: imposter-project/imposter-github-action/stop-mocks@291d093fac3532f4fc463a33e3acdfddad8435fc # v1.1.0

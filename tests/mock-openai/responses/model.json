@@ -1,0 +1,6 @@
+{
+  "id": "${context.request.pathParams.model}",
+  "object": "model",
+  "created": 1715367049,
+  "owned_by": "imposter"
+}
