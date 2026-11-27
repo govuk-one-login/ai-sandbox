@@ -52,14 +52,36 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # pin @v7
 
+      - name: Detect kit schema version
+        id: schema
+        env:
+          KIT: ${{ matrix.kit }}
+        run: |
+          # v3 kits are source kits: the docker/sandbox-kit:3 BuildKit frontend validates and
+          # builds them. `sbx kit validate --offline` needs the sbx builder sandbox for v3, and
+          # that can't run on hosted runners.
+          if grep -qE '^schemaVersion:[[:space:]]*"?3"?[[:space:]]*$' "$KIT/spec.yaml"; then
+            echo "v3=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "v3=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Install sbx CLI
+        if: steps.schema.outputs.v3 != 'true'
         run: |
           curl -fsSL https://get.docker.com | sudo REPO_ONLY=1 sh
           sudo apt-get update
           sudo apt-get install -y docker-sbx
 
       - name: Validate kit
+        if: steps.schema.outputs.v3 != 'true'
         run: sbx kit validate --offline ${{ matrix.kit }}
+
+      - name: Validate kit (v3, via the sandbox-kit BuildKit frontend)
+        if: steps.schema.outputs.v3 == 'true'
+        env:
+          KIT: ${{ matrix.kit }}
+        run: docker buildx build -f "$KIT/spec.yaml" "$KIT"
 
   changelog:
     name: Changelog ${{ matrix.kit }}
