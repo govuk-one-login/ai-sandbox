@@ -8,6 +8,7 @@ Each kit is a self-contained [Docker SBX kit](https://docs.docker.com/ai/sandbox
 
 | Kit | Description | Latest |
 |-----|-------------|--------|
+| [claude-kit](./claude-kit/) | Claude Code on AWS Bedrock sandbox for One Login developers | `ghcr.io/govuk-one-login/ai-sandbox/claude-kit:latest` |
 | [junie-kit](./junie-kit/) | JetBrains Junie sandbox for One Login developers | `ghcr.io/govuk-one-login/ai-sandbox/junie-kit:latest` |
 | [kiro-kit](./kiro-kit/) | Kiro sandbox for One Login developers | `ghcr.io/govuk-one-login/ai-sandbox/kiro-kit:latest` |
 | [opencode-kit](./opencode-kit/) | opencode sandbox (OpenAI-compatible endpoint) for One Login developers | `ghcr.io/govuk-one-login/ai-sandbox/opencode-kit:latest` |
