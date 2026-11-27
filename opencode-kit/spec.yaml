@@ -1,0 +1,81 @@
+schemaVersion: "2"
+kind: sandbox
+name: di-opencode
+displayName: di-opencode
+description: opencode on an OpenAI-compatible endpoint for One Login users.
+
+# Supplied at run time, so the published kit contains no endpoint:
+#   sbx run di-opencode . --kit <ref> --kit-arg model_endpoint=<host>:443
+# The value is used verbatim as the network allow-list entry and is turned into
+# the inference URL by the entrypoint below. The pattern is a security control
+# (the value opens network access) and allows exactly two shapes:
+#   - a remote hostname on port 443       -> https://<host>:443/v1
+#   - the host's llama.cpp on port 9931   -> http://host.docker.internal:9931/v1
+# No wildcards, other ports, schemes or paths.
+args:
+  model_endpoint:
+    required: true
+    pattern: "^([a-z0-9]([a-z0-9-]*[a-z0-9])?(\\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+:443|host\\.docker\\.internal:9931)$"
+    description: "OpenAI-compatible endpoint as host:port - <hostname>:443 for a remote endpoint, or host.docker.internal:9931 for llama.cpp on your machine"
+
+sandbox:
+  # Pinned by digest so the opencode version only changes deliberately: this
+  # template ships opencode 1.19.5 (V1), and opencode.json uses the V1 config
+  # format. To update, pick a new docker/sandbox-templates:opencode-* tag,
+  # replace both the tag and the digest, and re-test opencode.json.
+  image: "docker/sandbox-templates:opencode-0.11.0@sha256:7feb9784bc882dbe014888becb65c23e7fb1d1b24169a68d33660fe44476a0b4"
+  entrypoint:
+    - "/bin/sh"
+    - "-c"
+    # Plain HTTP is used only for the host's llama.cpp; everything else is HTTPS
+    # so the bearer token is never sent in clear text.
+    # The API key defaults to a dummy only when no secret is set (local model).
+    - >-
+      case "$OPENCODE_MODEL_ENDPOINT" in
+      host.docker.internal:9931) OPENCODE_MODEL_URL="http://$OPENCODE_MODEL_ENDPOINT/v1" ;;
+      *) OPENCODE_MODEL_URL="https://$OPENCODE_MODEL_ENDPOINT/v1" ;;
+      esac;
+      export OPENCODE_MODEL_URL;
+      export OPENCODE_MODEL_API_KEY="${OPENCODE_MODEL_API_KEY:-not-needed}";
+      exec opencode
+
+environment:
+  variables:
+    OPENCODE_MODEL_ENDPOINT: "${{ kit.args.model_endpoint }}"
+    # The bearer token (OPENCODE_MODEL_API_KEY) is deliberately NOT set here:
+    # `sbx secret set-custom --env OPENCODE_MODEL_API_KEY` defines it as a
+    # placeholder that the sbx proxy swaps for the real token (see README).
+
+permissions:
+  network:
+    allow:
+      # OpenAI-compatible endpoint (remote host:443, or the host's llama.cpp)
+      - "${{ kit.args.model_endpoint }}"
+      # sbx routes host.docker.internal to the host's localhost, and enforces
+      # the localhost form, so the local case also needs this (same as
+      # junie-kit). It only matters when llama.cpp is running on the host.
+      - "localhost:9931"
+      # Agent Manager install (npx)
+      - "registry.npmjs.org:443"
+      # Agent skills: Agent Manager downloads the discovery document
+      # (archive + Contents API) and clones skill source repositories.
+      # See files/home/opencode-kit/shared/ai-skills.yml.
+      - "github.com:443"
+      - "api.github.com:443"
+      - "codeload.github.com:443"
+      - "raw.githubusercontent.com:443"
+
+setup:
+  startup:
+    - command: ["/bin/sh", "-c", "mkdir -p /home/agent/.config/opencode && cp -r /home/agent/opencode-kit/shared/.config/opencode/. /home/agent/.config/opencode/"]
+      user: "1000"
+      description: "Copy shared opencode config to ~/.config/opencode"
+    # The image may set NPM_CONFIG_PREFIX to a dir whose lib/ is missing;
+    # create it so npx can unpack the Agent Manager CLI.
+    # Version is pinned: bump deliberately after checking the release.
+    - command: ["/bin/sh", "-c", "mkdir -p \"${NPM_CONFIG_PREFIX:-/usr/local/share/npm-global}/lib\" \"${NPM_CONFIG_PREFIX:-/usr/local/share/npm-global}/bin\"; npx -y @ai-agent-manager/cli@1.23.1 govuk-one-login/agent-skills --config /home/agent/opencode-kit/shared/ai-skills.yml"]
+      user: "1000"
+      description: "Install shared agent skills from govuk-one-login/agent-skills"
+    - command: ["/bin/sh", "-c", "if [ -d /home/agent/opencode-kit/personal/.config/opencode ]; then cp -r /home/agent/opencode-kit/personal/.config/opencode/. /home/agent/.config/opencode/; fi"]
+      user: "1000"
+      description: "Overlay personal opencode config on top of shared"
