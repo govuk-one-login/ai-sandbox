@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - opencode 1.19.5 starts with the endpoint set up and `claude-sonnet-5-5`
   selected. To use llama.cpp on your machine instead, pass
   `--kit-arg model_endpoint=host.docker.internal:9931`.
+- The models your endpoint offers are listed in `/models` automatically.
 - The sandbox has no AWS access and can reach only your endpoint, npm, GitHub
   and port 9931 on your machine (for llama.cpp).
 - Team skills (`incremental-commits`, `typescript-development`) are installed
