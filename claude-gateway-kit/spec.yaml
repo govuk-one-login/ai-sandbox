@@ -5,7 +5,7 @@
 #   sbx run claude . --kit ghcr.io/govuk-one-login/ai-sandbox/claude-gateway-kit:latest
 #
 # No AWS credentials or SSO login inside the sandbox. Your personal gateway key stays on the
-# host (`sbx secret set -g litellm`). The sbx proxy adds it to requests to the gateway, and the
+# host (`sbx secret set litellm`). The sbx proxy adds it to requests to the gateway, and the
 # sandbox only ever sees a placeholder.
 schemaVersion: "3"
 kind: mixin
@@ -54,7 +54,7 @@ capabilities:
 
   - type: com.docker.sandbox/credential@1
     name: DI AI gateway key
-    description: Your personal LiteLLM virtual key (sbx secret set -g litellm)
+    description: Your personal LiteLLM virtual key (sbx secret set litellm)
     config:
       service: litellm
       phase: runtime

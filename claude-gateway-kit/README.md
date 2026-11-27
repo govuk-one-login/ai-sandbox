@@ -16,7 +16,7 @@ tracked per person and team and access can be switched off in seconds.
 | | Bedrock direct (for example `di-claude`) | `claude-gateway-kit` |
 |---|---|---|
 | Credentials in the sandbox | AWS SSO session (device-code login inside the microVM) | **None.** Only a placeholder. |
-| Where the real credential lives | Inside the sandbox (`~/.aws/sso/cache`) | Host keychain (`sbx secret set -g litellm`) |
+| Where the real credential lives | Inside the sandbox (`~/.aws/sso/cache`) | Host keychain (`sbx secret set litellm`) |
 | Network allow-list | Bedrock, SSO, STS, sign-in | The gateway host only |
 | Spend and kill switch | AWS Budgets and CloudTrail, per account | Per person and team, in the gateway |
 | Kit type | Full sandbox (own image and entrypoint) | v3 **mixin** on Docker's built-in `claude` agent |
@@ -28,9 +28,9 @@ tracked per person and team and access can be switched off in seconds.
 2. Store it on your host. It never enters a sandbox:
 
    ```bash
-   sbx secret set -g litellm          # paste the key when prompted
+   sbx secret set litellm          # paste the key when prompted
    # or, if it's already in your macOS Keychain:
-   security find-generic-password -s litellm-ai-gateway -w | sbx secret set -g litellm
+   security find-generic-password -s litellm-ai-gateway -w | sbx secret set litellm
    ```
 
 3. Allow kits from this registry (one-off):
