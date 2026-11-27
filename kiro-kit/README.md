@@ -1,4 +1,4 @@
-# AWS IAM SBX Kit
+# Kiro SBX Kit
 
 ## Quick start
 
@@ -7,13 +7,13 @@
 sbx settings set kit.allowedSources '["docker.io/","ghcr.io/govuk-one-login/"]'
 
 # Run the sandbox with the latest published kit
-sbx run di-kiro . --kit ghcr.io/govuk-one-login/ai-sandbox/kiro-kit:latest
+sbx run ghcr.io/govuk-one-login/ai-sandbox/kiro-kit:latest .
 ```
 
 To pin to a specific version:
 
 ```bash
-sbx run di-kiro . --kit ghcr.io/govuk-one-login/ai-sandbox/kiro-kit:1.0.0
+sbx run ghcr.io/govuk-one-login/ai-sandbox/kiro-kit:1.0.0 .
 ```
 
 ## Local development
@@ -22,10 +22,10 @@ When iterating on the kit itself, use the local path:
 
 ```bash
 # Validate the kit
-sbx kit validate kiro-kit
+sbx kit validate ./kiro-kit
 
 # Run from local directory
-sbx run di-kiro . --kit kiro-kit
+sbx run ./kiro-kit .
 ```
 
 ## Releasing
@@ -202,7 +202,7 @@ The self-improve agent reflects on your interactions with Kiro and codifies less
 
 1. Start a sandbox session with both your work project and this repo in scope:
    ```bash
-   sbx run di-kiro /path/to/your/project /path/to/ai-sandbox --kit kiro-kit
+   sbx run ./kiro-kit /path/to/your/project /path/to/ai-sandbox
    ```
 
 2. Do your normal work with Kiro. When you find yourself correcting Kiro's behaviour — asking it to follow a convention, use a different approach, or stop doing something — make a mental note.
