@@ -19,8 +19,8 @@ kiro-kit/files/home/kiro-kit/
 Shared skills are team defaults.
 Personal skills let individuals override or extend without affecting the kit for others.
 
-> **Future consideration:** if we have multiple kits, skills may need to live at a level above and be symlinked or referenced into each kit.
-> For now, one kit — keep it simple.
+> **opencode-kit** doesn't commit skill copies.
+> It installs them at sandbox startup with [Agent Manager](https://github.com/ai-agent-manager/agent-manager) from [govuk-one-login/agent-skills](https://github.com/govuk-one-login/agent-skills), as listed in `opencode-kit/files/home/opencode-kit/shared/ai-skills.yml`.
 
 ## Anatomy of a skill
 
