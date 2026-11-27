@@ -10,6 +10,7 @@ Each kit is a self-contained [Docker SBX kit](https://docs.docker.com/ai/sandbox
 |-----|-------------|--------|
 | [junie-kit](./junie-kit/) | JetBrains Junie sandbox for One Login developers | `ghcr.io/govuk-one-login/ai-sandbox/junie-kit:latest` |
 | [kiro-kit](./kiro-kit/) | Kiro sandbox for One Login developers | `ghcr.io/govuk-one-login/ai-sandbox/kiro-kit:latest` |
+| [opencode-kit](./opencode-kit/) | opencode sandbox (OpenAI-compatible endpoint) for One Login developers | `ghcr.io/govuk-one-login/ai-sandbox/opencode-kit:latest` |
 
 ## Using a kit
 
