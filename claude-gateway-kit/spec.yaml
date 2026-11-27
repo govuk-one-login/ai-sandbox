@@ -1,0 +1,69 @@
+# syntax=docker/sandbox-kit:3
+# Claude Code through the DI AI gateway (LiteLLM in front of Claude on Bedrock, EU only).
+#
+# A mixin for Docker's built-in `claude` agent:
+#   sbx run claude . --kit ghcr.io/govuk-one-login/ai-sandbox/claude-gateway-kit:latest
+#
+# No AWS credentials or SSO login inside the sandbox. Your personal gateway key stays on the
+# host (`sbx secret set litellm`). The sbx proxy adds it to requests to the gateway, and the
+# sandbox only ever sees a placeholder.
+schemaVersion: "3"
+kind: mixin
+displayName: Claude Code via DI AI gateway
+description: >-
+  Points Docker's built-in Claude Code agent at the DI AI gateway (LiteLLM, Claude on Bedrock
+  in the EU) with a per-developer key injected by the sbx proxy.
+
+args:
+  gatewayHost:
+    default: "dd9q1qh5bfkpx.cloudfront.net"
+    pattern: '^[a-z0-9.-]+$'
+    description: Gateway hostname, used for the network allow-list and key injection
+  gatewayUrl:
+    default: "https://dd9q1qh5bfkpx.cloudfront.net"
+    pattern: '^https://[a-z0-9.-]+$'
+    description: Gateway base URL for Claude Code (must match gatewayHost)
+    env: ANTHROPIC_BASE_URL
+  opusModel:
+    default: "claude-opus-5-5"
+    pattern: '^[a-z0-9.-]+$'
+    description: Gateway alias Claude Code uses for "opus"
+    env: ANTHROPIC_DEFAULT_OPUS_MODEL
+  sonnetModel:
+    default: "claude-sonnet-5-5"
+    pattern: '^[a-z0-9.-]+$'
+    description: Gateway alias Claude Code uses for "sonnet"
+    env: ANTHROPIC_DEFAULT_SONNET_MODEL
+  haikuModel:
+    default: "claude-haiku-5-5"
+    pattern: '^[a-z0-9.-]+$'
+    description: Gateway alias Claude Code uses for "haiku" and background tasks
+    env: ANTHROPIC_DEFAULT_HAIKU_MODEL
+  disableNonessentialTraffic:
+    default: "1"
+    enum: ["0", "1"]
+    description: Stop Claude Code calling Anthropic-hosted services (telemetry, updates) directly
+    env: CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC
+
+capabilities:
+  - type: com.docker.sandbox/network-policy@1
+    config:
+      runtime:
+        allow:
+          - "${{ kit.args.gatewayHost }}:443"
+
+  - type: com.docker.sandbox/credential@1
+    name: DI AI gateway key
+    description: Your personal LiteLLM virtual key (sbx secret set litellm)
+    config:
+      service: litellm
+      phase: runtime
+      apiKey:
+        # Claude Code sends ANTHROPIC_AUTH_TOKEN as "Authorization: Bearer". Inside the sandbox
+        # it holds a placeholder. The proxy writes the real key on the way out.
+        name: ANTHROPIC_AUTH_TOKEN
+        proxyManaged: true
+        inject:
+          - domain: "${{ kit.args.gatewayHost }}"
+            header: Authorization
+            format: "Bearer %s"
