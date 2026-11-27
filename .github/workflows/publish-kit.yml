@@ -78,14 +78,32 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      - name: Detect kit schema version
+        id: schema
+        run: |
+          # v3 kits are source kits: the docker/sandbox-kit:3 BuildKit frontend validates and
+          # builds them. `sbx kit validate --offline` and `sbx kit push <dir>` need the sbx
+          # builder sandbox for v3, and that can't run on hosted runners.
+          if grep -qE '^schemaVersion:[[:space:]]*"?3"?[[:space:]]*$' "${{ matrix.kit }}/spec.yaml"; then
+            echo "v3=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "v3=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Install sbx CLI
+        if: steps.schema.outputs.v3 != 'true'
         run: |
           curl -fsSL https://get.docker.com | sudo REPO_ONLY=1 sh
           sudo apt-get update
           sudo apt-get install -y docker-sbx
 
       - name: Validate kit
+        if: steps.schema.outputs.v3 != 'true'
         run: sbx kit validate --offline ${{ matrix.kit }}
+
+      - name: Validate kit (v3, via the sandbox-kit BuildKit frontend)
+        if: steps.schema.outputs.v3 == 'true'
+        run: docker buildx build -f ${{ matrix.kit }}/spec.yaml ${{ matrix.kit }}
 
   publish:
     name: Publish ${{ matrix.kit }}
@@ -110,7 +128,17 @@ jobs:
             exit 1
           fi
 
+      - name: Detect kit schema version
+        id: schema
+        run: |
+          if grep -qE '^schemaVersion:[[:space:]]*"?3"?[[:space:]]*$' "${{ matrix.kit }}/spec.yaml"; then
+            echo "v3=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "v3=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Install sbx CLI
+        if: steps.schema.outputs.v3 != 'true'
         run: |
           curl -fsSL https://get.docker.com | sudo REPO_ONLY=1 sh
           sudo apt-get update
@@ -120,10 +148,20 @@ jobs:
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
       - name: Push kit (versioned tag)
+        if: steps.schema.outputs.v3 != 'true'
         run: sbx kit push ${{ matrix.kit }} ghcr.io/${{ github.repository }}/${{ matrix.kit }}:${{ matrix.version }}
 
       - name: Push kit (latest tag)
+        if: steps.schema.outputs.v3 != 'true'
         run: sbx kit push ${{ matrix.kit }} ghcr.io/${{ github.repository }}/${{ matrix.kit }}:latest
+
+      - name: Build and push kit (v3, versioned and latest tags)
+        if: steps.schema.outputs.v3 == 'true'
+        run: |
+          docker buildx build -f ${{ matrix.kit }}/spec.yaml ${{ matrix.kit }} \
+            -t ghcr.io/${{ github.repository }}/${{ matrix.kit }}:${{ matrix.version }} \
+            -t ghcr.io/${{ github.repository }}/${{ matrix.kit }}:latest \
+            --push
 
       - name: Tag commit with version
         run: |
