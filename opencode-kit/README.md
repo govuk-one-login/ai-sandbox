@@ -60,10 +60,18 @@ The kit uses plain HTTP for this one address only; every other endpoint must be
 `<hostname>:443` over HTTPS. `llama-server` ignores the model name, so the
 default selection works. Tested with llama.cpp on `127.0.0.1:9931`.
 
+At startup the kit also asks the endpoint for its model list (`/v1/models`) and
+adds each model to `/models`, so you can pick your llama.cpp model by name.
+Start `llama-server` before `sbx run`.
+
 ## Troubleshooting
 
-- **Local model not reachable**: check `llama-server` is listening on port 9931,
-  then `sbx policy log` for blocked hosts. This path mirrors the junie-kit.
+- **Only the default model in `/models`**: the endpoint wasn't reachable when
+  the sandbox started, so its model list wasn't added. For llama.cpp, check
+  `llama-server` is listening on port 9931 (`curl localhost:9931/v1/models` on
+  your host), then recreate the sandbox. The default model still works.
+- **Local model not reachable**: check `sbx policy log` for blocked hosts. This
+  path mirrors the junie-kit.
 - **401 from the endpoint**: the secret isn't applied. Check the `--host`
   matches the hostname in `model_endpoint`, and recreate the sandbox if you added
   the secret after creating it.
@@ -97,6 +105,9 @@ default selection works. Tested with llama.cpp on `127.0.0.1:9931`.
 The default is `endpoint/claude-sonnet-5-5`. To add models, extend `models` in
 `files/home/opencode-kit/shared/.config/opencode/opencode.json`. The key must be
 the model ID your endpoint exposes (use `modelID` to map a different name).
+Models the endpoint lists at `/v1/models` are added automatically at startup by
+`files/home/opencode-kit/shared/discover-endpoint-models.mjs`, so you only need
+to add a model there if you want it as the default.
 
 ### Personal config
 
