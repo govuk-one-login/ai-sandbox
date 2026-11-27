@@ -79,3 +79,9 @@ setup:
     - command: ["/bin/sh", "-c", "if [ -d /home/agent/opencode-kit/personal/.config/opencode ]; then cp -r /home/agent/opencode-kit/personal/.config/opencode/. /home/agent/.config/opencode/; fi"]
       user: "1000"
       description: "Overlay personal opencode config on top of shared"
+    # Best effort: lists the models the configured endpoint exposes and adds them
+    # to the `endpoint` provider. Runs after the personal overlay so a personal
+    # opencode.json doesn't wipe them. Skips quietly if the endpoint is down.
+    - command: ["/bin/sh", "-c", "node /home/agent/opencode-kit/shared/discover-endpoint-models.mjs || true"]
+      user: "1000"
+      description: "Discover models from the configured endpoint"
